@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Password Vault</title>
+<style>
+  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e7e9ee;--mut:#8b93a5;--acc:#4f8cff;--bad:#ff5d5d;--ok:#3ecf8e}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  button,input,select,textarea{font:inherit;color:inherit}
+  input,select,textarea{width:100%;background:#0c0e12;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  textarea{min-height:70px;resize:vertical}
+  button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer}
+  button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+  button.danger{color:var(--bad)}
+  button:disabled{opacity:.5}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  .center{min-height:90vh;display:flex;align-items:center;justify-content:center}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:420px}
+  .box h1{margin:0 0 4px;font-size:22px}
+  .mut{color:var(--mut);font-size:13px}
+  .stack>*+*{margin-top:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row>.grow{flex:1;min-width:160px}
+  header.bar{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0}
+  .chip{white-space:nowrap;padding:5px 12px;border-radius:999px;font-size:13px}
+  .chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .list{display:grid;gap:8px;margin-top:8px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center}
+  .av{width:36px;height:36px;border-radius:9px;background:#26304a;display:flex;align-items:center;justify-content:center;font-weight:600;flex:none}
+  .item .meta{flex:1;min-width:0}
+  .item .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .u{color:var(--mut);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item button{padding:7px 10px;font-size:13px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+  .stat b{font-size:20px;display:block}
+  .warn{color:#ffb547}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}
+  .modal.open{display:flex}
+  .sheet{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:18px}
+  @media(min-width:700px){.modal{align-items:center}.sheet{border-radius:16px}}
+  label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+  .pw{display:flex;gap:6px}.pw input{flex:1;font-family:ui-monospace,Menlo,monospace}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222838;border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:30}
+  .strength{height:5px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}.strength i{display:block;height:100%}
+  .dirty{color:#ffb547;font-size:13px}
+  .hidden{display:none!important}
+  /* Privacy: blur all vault content */
+  body.priv #list, body.priv #stats, body.priv #chips,
+  body.priv #edit .sheet input, body.priv #edit .sheet textarea, body.priv #fUpdated, body.priv #vaultInfo
+    {filter:blur(7px);transition:filter .15s}
+  #list,#stats,#chips{transition:filter .15s}
+  /* Read-only mode: hide everything that changes the vault */
+  body.ro .edit-only{display:none!important}
+  body:not(.ro) .ro-note{display:none}
+  button.toggle.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  #modeTag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+  body:not(.ro) #modeTag{color:#ffb547;border-color:#ffb547}
+</style>
+</head>
+<body class="ro">
+
+<!-- LOCK SCREEN -->
+<div id="lock" class="center wrap">
+  <div class="box stack">
+    <div><h1>🔐 Password Vault</h1><div class="mut">Everything is decrypted only in this browser tab. Nothing is sent anywhere.</div></div>
+    <button id="pickBtn">Open vault file…</button>
+    <input id="fileIn" type="file" class="hidden">
+    <div id="fileName" class="mut"></div>
+    <input id="master" type="password" placeholder="Master password" autocomplete="current-password">
+    <button id="unlockBtn" class="pri" disabled>Unlock</button>
+    <div id="lockErr" class="mut" style="color:var(--bad)"></div>
+    <hr style="border:0;border-top:1px solid var(--line)">
+    <button id="newBtn">Create new vault</button>
+  </div>
+</div>
+
+<!-- NEW VAULT -->
+<div id="create" class="center wrap hidden">
+  <div class="box stack">
+    <h1>New vault</h1>
+    <div class="mut">Choose a strong master password. It cannot be recovered. If you forget it, the data is gone.</div>
+    <input id="np1" type="password" placeholder="Master password (12+ characters)" autocomplete="new-password">
+    <div class="strength"><i id="npBar"></i></div>
+    <input id="np2" type="password" placeholder="Confirm master password" autocomplete="new-password">
+    <div class="row"><button id="cancelCreate">Back</button><button id="doCreate" class="pri grow">Create</button></div>
+    <div id="createErr" class="mut" style="color:var(--bad)"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main" class="wrap hidden">
+  <header class="bar">
+    <div class="row">
+      <input id="q" class="grow" type="search" placeholder="Search…" autocomplete="off">
+      <button id="menuBtn">⋯</button>
+      <button id="lockBtn">Lock</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="privBtn" class="toggle">👁 Privacy</button>
+      <button id="editBtn" class="toggle">✎ Edit</button>
+      <span id="modeTag">Read-only</span>
+      <span class="grow"></span>
+      <button id="addBtn" class="pri edit-only">+ Add</button>
+      <button id="saveBtn" class="edit-only">Save</button>
+    </div>
+    <div class="row" style="justify-content:space-between"><div class="chips" id="chips"></div><span id="dirty" class="dirty"></span></div>
+  </header>
+  <div class="stats" id="stats"></div>
+  <div class="list" id="list"></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit" class="modal"><div class="sheet stack">
+  <div class="row" style="justify-content:space-between"><h2 id="editTitle" style="margin:0">Entry</h2><button id="closeEdit">✕</button></div>
+  <div><label>Title</label><input id="fTitle"></div>
+  <div><label>Category</label><input id="fCat" list="catList" placeholder="e.g. Banking, Email, Work"><datalist id="catList"></datalist></div>
+  <div><label>Username / email</label><div class="pw"><input id="fUser" autocomplete="off"><button data-copy="fUser">Copy</button></div></div>
+  <div><label>Password</label><div class="pw"><input id="fPass" type="password" autocomplete="off"><button id="togglePw">Show</button><button data-copy="fPass">Copy</button></div>
+    <div class="strength"><i id="fBar"></i></div></div>
+  <div class="row edit-only"><label style="margin:0">Generate:</label><input id="gLen" type="number" min="8" max="64" value="20" style="width:70px"><label style="margin:0"><input id="gSym" type="checkbox" checked style="width:auto"> symbols</label><button id="genBtn">Generate</button></div>
+  <div><label>Website</label><input id="fUrl" placeholder="https://"></div>
+  <div><label>Notes</label><textarea id="fNotes"></textarea></div>
+  <div id="fUpdated" class="mut"></div>
+  <div class="row"><button id="delBtn" class="danger edit-only">Delete</button><span class="grow"></span><button id="saveEntry" class="pri">Done</button></div>
+</div></div>
+
+<!-- MENU MODAL -->
+<div id="menu" class="modal"><div class="sheet stack">
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Vault</h2><button id="closeMenu">✕</button></div>
+  <div class="mut ro-note">Turn on ✎ Edit to import or change the master password.</div>
+  <button id="importBtn" class="edit-only">Import CSV (from your Excel)</button>
+  <input id="csvIn" type="file" accept=".csv,text/csv" class="hidden">
+  <div class="mut edit-only">In Excel: File → Save As → CSV. Columns detected automatically: Title/Site, Username/Email, Password, URL, Category, Notes. <b class="warn">Securely delete the CSV after importing.</b></div>
+  <button id="chgPwBtn" class="edit-only">Change master password</button>
+  <div class="mut" id="vaultInfo"></div>
+</div></div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+/* ===================== CRYPTO =====================
+   Vault file = JSON { app, v, kdf, iter, salt, iv, ct }
+   Key: PBKDF2-SHA256 (600k iterations) -> AES-256-GCM (authenticated)
+   Key is non-extractable and only lives in memory while unlocked. */
+const ITER = 600000;
+const enc = new TextEncoder(), dec = new TextDecoder();
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
+
+async function deriveKey(pw, salt, iter){
+  const base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function seal(key, salt, iter, obj){
+  const iv = rand(12);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, enc.encode(JSON.stringify(obj))));
+  return JSON.stringify({app:"pwvault", v:1, kdf:"PBKDF2-SHA256", iter, salt:b64(salt), iv:b64(iv), ct:b64(ct)});
+}
+async function open(fileText, pw){
+  const f = JSON.parse(fileText);
+  if (f.app !== "pwvault") throw new Error("Not a vault file");
+  const salt = unb64(f.salt), key = await deriveKey(pw, salt, f.iter);
+  let pt;
+  try { pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(f.iv)}, key, unb64(f.ct)); }
+  catch { throw new Error("Wrong password or file was modified"); }
+  return {key, salt, iter:f.iter, data:JSON.parse(dec.decode(pt))};
+}
+
+/* ===================== STATE ===================== */
+const $ = id => document.getElementById(id);
+let S = null;            // {key, salt, iter, data:{entries:[]}}
+let fileText = null, fileHandle = null, fileLabel = "passwords.vault";
+let dirty = false, editingId = null, cat = "All", clipTimer = null, idleTimer = null;
+const IDLE_MS = 5 * 60 * 1000;   // auto-lock after 5 min of inactivity
+const CLIP_MS = 30 * 1000;       // clear clipboard after 30 s
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",2200); }
+function show(id){ ["lock","create","main"].forEach(x=>$(x).classList.toggle("hidden", x!==id)); }
+function setDirty(v){ dirty=v; $("dirty").textContent = v ? "● Unsaved changes" : ""; }
+const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => b64(rand(9)).replace(/[+/=]/g,"");
+
+/* ===================== OPEN / UNLOCK ===================== */
+$("pickBtn").onclick = async () => {
+  if (window.showOpenFilePicker) {            // Chrome/Edge on desktop: can save back in place
+    try {
+      [fileHandle] = await showOpenFilePicker({multiple:false});
+      const f = await fileHandle.getFile(); fileText = await f.text(); fileLabel = f.name;
+      $("fileName").textContent = "📄 " + f.name; $("unlockBtn").disabled = false; $("master").focus();
+    } catch(e) {}
+  } else $("fileIn").click();                  // Safari / iPhone: Files app picker (iCloud, Cryptomator)
+};
+$("fileIn").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  fileText = await f.text(); fileLabel = f.name; fileHandle = null;
+  $("fileName").textContent = "📄 " + f.name; $("unlockBtn").disabled = false; $("master").focus();
+};
+async function unlock(){
+  $("lockErr").textContent = ""; $("unlockBtn").disabled = true; $("unlockBtn").textContent = "Unlocking…";
+  try {
+    S = await open(fileText, $("master").value);
+    S.data.entries ||= [];
+    $("master").value = ""; setDirty(false); show("main"); render(); armIdle();
+  } catch(e){ $("lockErr").textContent = e.message; }
+  $("unlockBtn").disabled = false; $("unlockBtn").textContent = "Unlock";
+}
+$("unlockBtn").onclick = unlock;
+$("master").onkeydown = e => { if (e.key==="Enter" && fileText) unlock(); };
+
+/* ===================== CREATE ===================== */
+$("newBtn").onclick = () => show("create");
+$("cancelCreate").onclick = () => show("lock");
+$("np1").oninput = () => bar($("npBar"), $("np1").value);
+$("doCreate").onclick = async () => {
+  const a=$("np1").value, b=$("np2").value;
+  if (a.length < 12) return $("createErr").textContent = "Use at least 12 characters.";
+  if (a !== b) return $("createErr").textContent = "Passwords don't match.";
+  const salt = rand(16);
+  S = {key: await deriveKey(a, salt, ITER), salt, iter:ITER, data:{entries:[]}};
+  $("np1").value = $("np2").value = ""; fileHandle = null; fileLabel = "passwords.vault";
+  show("main"); render(); armIdle(); setDirty(true); setEdit(true);
+  toast("Vault created. Tap Save and store it in iCloud Drive.");
+};
+
+/* ===================== SAVE =====================
+   Chrome/Edge desktop with handle: writes the same file in place.
+   iPhone/iPad: share sheet -> "Save to Files" -> pick your iCloud/Cryptomator folder -> Replace.
+   Otherwise: downloads the file. */
+async function saveVault(){
+  const out = await seal(S.key, S.salt, S.iter, S.data);
+  if (fileHandle && fileHandle.createWritable) {
+    try { const w = await fileHandle.createWritable(); await w.write(out); await w.close(); setDirty(false); return toast("Saved ✓"); }
+    catch(e){ /* fall through */ }
+  }
+  const file = new File([out], fileLabel, {type:"application/octet-stream"});
+  if (navigator.canShare && navigator.canShare({files:[file]}) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
+    try { await navigator.share({files:[file]}); setDirty(false); return toast("Choose Save to Files → replace the old vault"); }
+    catch(e){ if (e.name==="AbortError") return; }
+  }
+  if (window.showSaveFilePicker) {
+    try { fileHandle = await showSaveFilePicker({suggestedName:fileLabel});
+          const w = await fileHandle.createWritable(); await w.write(out); await w.close(); setDirty(false); return toast("Saved ✓"); }
+    catch(e){ if (e.name==="AbortError") return; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = fileLabel; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000); setDirty(false);
+  toast("Downloaded — move it over the old vault file");
+}
+$("saveBtn").onclick = saveVault;
+
+/* ===================== LOCK ===================== */
+function lock(reason){
+  if (dirty && reason !== "force" && !confirm("You have unsaved changes. Lock anyway and lose them?")) return;
+  S = null; fileText = null; fileHandle = null; editingId = null;
+  $("list").innerHTML = ""; $("q").value = ""; closeModal("edit"); closeModal("menu");
+  $("fileName").textContent = ""; $("unlockBtn").disabled = true; $("fileIn").value = "";
+  setDirty(false); show("lock");
+  document.body.classList.add("ro"); $("editBtn").classList.remove("on"); $("modeTag").textContent = "Read-only";
+  if (reason === "idle") $("lockErr").textContent = "Locked after inactivity.";
+}
+$("lockBtn").onclick = () => lock();
+function armIdle(){ clearTimeout(idleTimer); if (S) idleTimer = setTimeout(()=>{ if (dirty) saveVault().finally(()=>lock("force")); else lock("idle"); }, IDLE_MS); }
+["click","keydown","touchstart","scroll"].forEach(ev => addEventListener(ev, armIdle, {passive:true}));
+document.addEventListener("visibilitychange", () => { if (document.hidden && S && !dirty) setTimeout(()=>{ if (document.hidden && S && !dirty) lock("idle"); }, 60000); });
+addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ===================== PRIVACY & READ-ONLY MODE ===================== */
+const isRO = () => document.body.classList.contains("ro");
+function setPrivacy(on){ document.body.classList.toggle("priv", on); $("privBtn").classList.toggle("on", on); }
+async function setEdit(on){
+  if (!on && dirty) {
+    if (confirm("Save your changes before leaving Edit mode?")) await saveVault();
+  }
+  document.body.classList.toggle("ro", !on);
+  $("editBtn").classList.toggle("on", on);
+  $("modeTag").textContent = on ? "Editing" : "Read-only";
+  if ($("edit").classList.contains("open")) applyFieldMode();
+}
+$("privBtn").onclick = () => setPrivacy(!document.body.classList.contains("priv"));
+$("editBtn").onclick = () => setEdit(isRO());
+
+/* ===================== RENDER ===================== */
+function host(u){ try { return new URL(u.includes("://")?u:"https://"+u).hostname; } catch { return ""; } }
+function render(){
+  const E = S.data.entries;
+  const cats = ["All", ...[...new Set(E.map(e=>e.category||"Uncategorised"))].sort()];
+  if (!cats.includes(cat)) cat = "All";
+  $("chips").innerHTML = cats.map(c=>`<button class="chip ${c===cat?"on":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+  $("catList").innerHTML = cats.slice(1).map(c=>`<option value="${esc(c)}">`).join("");
+  const counts = {}; E.forEach(e => { if (e.password) counts[e.password] = (counts[e.password]||0)+1; });
+  const weak = E.filter(e => e.password && score(e.password) < 3).length;
+  const reused = E.filter(e => e.password && counts[e.password] > 1).length;
+  $("stats").innerHTML = `<div class="stat"><b>${E.length}</b><span class="mut">entries</span></div>
+    <div class="stat"><b class="${weak?"warn":""}">${weak}</b><span class="mut">weak</span></div>
+    <div class="stat"><b class="${reused?"warn":""}">${reused}</b><span class="mut">reused</span></div>`;
+  const q = $("q").value.trim().toLowerCase();
+  const rows = E.filter(e => (cat==="All" || (e.category||"Uncategorised")===cat) &&
+      (!q || [e.title,e.username,e.url,e.category,e.notes].some(v => (v||"").toLowerCase().includes(q))))
+    .sort((a,b)=>(a.title||"").localeCompare(b.title||""));
+  $("list").innerHTML = rows.length ? rows.map(e => `
+    <div class="item" data-id="${e.id}">
+      <div class="av">${esc((e.title||"?")[0].toUpperCase())}</div>
+      <div class="meta"><div class="t">${esc(e.title||"(untitled)")}${counts[e.password]>1?' <span class="warn" title="Reused">⚠︎</span>':""}</div>
+        <div class="u">${esc(e.username||host(e.url||"")||"")}</div></div>
+      <button data-cu="${e.id}">User</button><button data-cp="${e.id}">Copy pw</button>
+    </div>`).join("") : `<div class="mut" style="padding:20px;text-align:center">${E.length?"No matches.":"Empty vault — add an entry or import your CSV from the ⋯ menu."}</div>`;
+}
+$("q").oninput = render;
+$("chips").onclick = e => { const c = e.target.dataset.cat; if (c) { cat = c; render(); } };
+$("list").onclick = e => {
+  const t = e.target, get = id => S.data.entries.find(x=>x.id===id);
+  if (t.dataset.cp) return copy(get(t.dataset.cp).password, "Password");
+  if (t.dataset.cu) return copy(get(t.dataset.cu).username, "Username");
+  const row = t.closest(".item"); if (row) openEdit(row.dataset.id);
+};
+
+/* ===================== CLIPBOARD ===================== */
+async function copy(v, what){
+  if (!v) return toast("Nothing to copy");
+  try { await navigator.clipboard.writeText(v); } catch { return toast("Copy blocked by browser"); }
+  toast(`${what} copied — clears in 30s`);
+  clearTimeout(clipTimer);
+  clipTimer = setTimeout(async () => { try { if ((await navigator.clipboard.readText()) === v) await navigator.clipboard.writeText(""); } catch { try { await navigator.clipboard.writeText(""); } catch{} } }, CLIP_MS);
+}
+
+/* ===================== EDIT ===================== */
+const F = ["Title","Cat","User","Pass","Url","Notes"], K = ["title","category","username","password","url","notes"];
+function openModal(id){ $(id).classList.add("open"); }
+function closeModal(id){ $(id).classList.remove("open"); }
+function openEdit(id){
+  editingId = id; const e = id ? S.data.entries.find(x=>x.id===id) : {};
+  F.forEach((f,i)=> $("f"+f).value = e[K[i]] || "");
+  $("fPass").type = "password"; $("togglePw").textContent = "Show";
+  $("delBtn").classList.toggle("hidden", !id);
+  applyFieldMode();
+  $("fUpdated").textContent = e.updated ? "Last changed " + new Date(e.updated).toLocaleString() : "";
+  bar($("fBar"), $("fPass").value); openModal("edit");
+  if (!id) $("fTitle").focus();
+}
+function applyFieldMode(){
+  const ro = isRO();
+  F.forEach(f => $("f"+f).readOnly = ro);
+  $("editTitle").textContent = ro ? "Details" : (editingId ? "Edit entry" : "New entry");
+  $("saveEntry").textContent = ro ? "Close" : "Done";
+}
+$("addBtn").onclick = () => { if (!isRO()) openEdit(null); };
+$("closeEdit").onclick = () => closeModal("edit");
+$("saveEntry").onclick = () => {
+  if (isRO()) return closeModal("edit");
+  const v = {}; F.forEach((f,i)=> v[K[i]] = $("f"+f).value.trim()); v.password = $("fPass").value;
+  if (!v.title && !v.username) return toast("Add a title or username");
+  const E = S.data.entries;
+  if (editingId) { const e = E.find(x=>x.id===editingId); if (e.password !== v.password) (e.history ||= []).unshift({password:e.password, changed:e.updated}); Object.assign(e, v, {updated:Date.now()}); if (e.history.length>5) e.history.length=5; }
+  else E.push({id:uid(), ...v, updated:Date.now()});
+  closeModal("edit"); setDirty(true); render();
+};
+$("delBtn").onclick = () => {
+  if (isRO() || !confirm("Delete this entry?")) return;
+  S.data.entries = S.data.entries.filter(x=>x.id!==editingId); closeModal("edit"); setDirty(true); render();
+};
+$("togglePw").onclick = () => { const p=$("fPass"); p.type = p.type==="password"?"text":"password"; $("togglePw").textContent = p.type==="password"?"Show":"Hide"; };
+$("fPass").oninput = () => bar($("fBar"), $("fPass").value);
+document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copy($(b.dataset.copy).value, b.dataset.copy==="fPass"?"Password":"Username"));
+
+/* ===================== GENERATOR & STRENGTH ===================== */
+function gen(len, sym){
+  const sets = ["ABCDEFGHJKLMNPQRSTUVWXYZ","abcdefghijkmnopqrstuvwxyz","23456789"]; if (sym) sets.push("!@#$%^&*-_=+?");
+  const all = sets.join(""), out = [];
+  const pick = s => { const lim = 256 - (256 % s.length); let r; do { r = rand(1)[0]; } while (r >= lim); return s[r % s.length]; };
+  sets.forEach(s => out.push(pick(s)));
+  while (out.length < len) out.push(pick(all));
+  for (let i=out.length-1;i>0;i--){ const j = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0]/2**32*(i+1)); [out[i],out[j]]=[out[j],out[i]]; }
+  return out.join("");
+}
+$("genBtn").onclick = () => { $("fPass").value = gen(Math.min(64,Math.max(8,+$("gLen").value||20)), $("gSym").checked); $("fPass").type="text"; $("togglePw").textContent="Hide"; bar($("fBar"), $("fPass").value); };
+function score(p){ let s=0; if (p.length>=12) s++; if (p.length>=16) s++; if (/[a-z]/.test(p)&&/[A-Z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++; if (p.length<8) s=0; return s; }
+function bar(el, p){ const s=score(p); el.style.width = (s/5*100)+"%"; el.style.background = s<3?"var(--bad)":s<4?"#ffb547":"var(--ok)"; }
+
+/* ===================== MENU: IMPORT / CHANGE PW ===================== */
+$("menuBtn").onclick = () => { $("vaultInfo").textContent = `File: ${fileLabel} · ${S.data.entries.length} entries · PBKDF2 ${S.iter.toLocaleString()} iterations · AES-256-GCM`; openModal("menu"); };
+$("closeMenu").onclick = () => closeModal("menu");
+$("importBtn").onclick = () => $("csvIn").click();
+function parseCSV(t){
+  const rows=[]; let row=[], f="", q=false;
+  for (let i=0;i<t.length;i++){ const c=t[i];
+    if (q){ if (c==='"'){ if (t[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=c; }
+    else if (c==='"') q=true; else if (c===','){ row.push(f); f=""; }
+    else if (c==='\n'||c==='\r'){ if (c==='\r'&&t[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=""; }
+    else f+=c; }
+  if (f||row.length){ row.push(f); rows.push(row); }
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+$("csvIn").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  const rows = parseCSV((await file.text()).replace(/^﻿/,"")); e.target.value = "";
+  if (rows.length < 2) return toast("No rows found");
+  const H = rows[0].map(h=>h.trim().toLowerCase());
+  const col = names => H.findIndex(h => names.some(n => h===n || h.includes(n)));
+  const m = { title:col(["title","name","site","account","service","application","app"]), username:col(["username","user","login","email","id"]),
+              password:col(["password","pass","pwd"]), url:col(["url","website","link","web"]), category:col(["category","group","folder","type"]), notes:col(["notes","note","comment","remarks"]) };
+  if (m.password < 0) return toast("Couldn't find a Password column");
+  let n = 0;
+  rows.slice(1).forEach(r => { const g = k => m[k]>=0 ? (r[m[k]]||"").trim() : "";
+    const e = {id:uid(), title:g("title")||host(g("url"))||g("username"), username:g("username"), password:m.password>=0?(r[m.password]||""):"", url:g("url"), category:g("category"), notes:g("notes"), updated:Date.now()};
+    if (e.title||e.username||e.password){ S.data.entries.push(e); n++; } });
+  closeModal("menu"); setDirty(true); render();
+  toast(`Imported ${n} entries — now Save, then delete the CSV`);
+};
+$("chgPwBtn").onclick = async () => {
+  const a = prompt("New master password (12+ characters):"); if (!a) return;
+  if (a.length < 12) return toast("Too short");
+  if (prompt("Confirm new master password:") !== a) return toast("Didn't match");
+  S.salt = rand(16); S.iter = ITER; S.key = await deriveKey(a, S.salt, ITER);
+  setDirty(true); closeModal("menu"); toast("Master password changed — Save now");
+};
+
+document.addEventListener("keydown", e => { if (e.key==="Escape"){ closeModal("edit"); closeModal("menu"); } if ((e.metaKey||e.ctrlKey) && e.key==="s" && S){ e.preventDefault(); saveVault(); } });
+</script>
+</body>
+</html>
