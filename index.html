@@ -8,11 +8,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Password Vault</title>
 <style>
-  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e7e9ee;--mut:#8b93a5;--acc:#4f8cff;--bad:#ff5d5d;--ok:#3ecf8e;--warn:#ffb547}
+  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e7e9ee;--mut:#8b93a5;--acc:#4f8cff;--bad:#ff5d5d;--ok:#3ecf8e;--warn:#ffb547;
+    --input:#0c0e12;--soft:#26304a;--toast:#222838;--age1bg:rgba(255,214,0,.09);--age1bd:rgba(255,214,0,.35);--age2bg:rgba(255,80,80,.10);--age2bd:rgba(255,80,80,.45);
+    --tagy:rgba(255,214,0,.2);--tagyc:#ffd84d;--tagr:rgba(255,80,80,.2);--tagrc:#ff8080;--staron:#ffd84d;color-scheme:dark;
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238b93a5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+  :root[data-theme=light]{--bg:#efece5;--card:#f8f6f1;--line:#d9d3c7;--txt:#2e3238;--mut:#6f6a61;--acc:#3a6ccf;--bad:#c2463f;--ok:#2e8b61;--warn:#a8701c;
+    --input:#fdfbf7;--soft:#e4dfd4;--toast:#ffffff;--age1bg:rgba(214,160,0,.12);--age1bd:rgba(200,150,0,.45);--age2bg:rgba(214,70,60,.10);--age2bd:rgba(200,60,50,.45);
+    --tagy:rgba(214,160,0,.18);--tagyc:#8a6300;--tagr:rgba(214,70,60,.15);--tagrc:#a8352d;--staron:#c99a00;color-scheme:light;
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236f6a61' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+  @media (prefers-color-scheme: light){ :root:not([data-theme]){--bg:#efece5;--card:#f8f6f1;--line:#d9d3c7;--txt:#2e3238;--mut:#6f6a61;--acc:#3a6ccf;--bad:#c2463f;--ok:#2e8b61;--warn:#a8701c;
+    --input:#fdfbf7;--soft:#e4dfd4;--toast:#ffffff;--age1bg:rgba(214,160,0,.12);--age1bd:rgba(200,150,0,.45);--age2bg:rgba(214,70,60,.10);--age2bd:rgba(200,60,50,.45);
+    --tagy:rgba(214,160,0,.18);--tagyc:#8a6300;--tagr:rgba(214,70,60,.15);--tagrc:#a8352d;--staron:#c99a00;color-scheme:light;
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236f6a61' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")} }
   *{box-sizing:border-box}
   body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
   button,input,select,textarea{font:inherit;color:inherit}
-  input,select,textarea{width:100%;background:#0c0e12;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  input,select,textarea{width:100%;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  select{-webkit-appearance:none;appearance:none;background-image:var(--chev);background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px;padding-right:36px;cursor:pointer}
+  select:disabled{background-image:none;padding-right:12px;opacity:1}
   textarea{min-height:70px;resize:vertical}
   textarea.masked{-webkit-text-security:disc}
   button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer}
@@ -34,12 +47,12 @@
   .chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   .list{display:grid;gap:8px;margin-top:8px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center}
-  .item.age1{background:rgba(255,214,0,.09);border-color:rgba(255,214,0,.35)}
-  .item.age2{background:rgba(255,80,80,.10);border-color:rgba(255,80,80,.45)}
+  .item.age1{background:var(--age1bg);border-color:var(--age1bd)}
+  .item.age2{background:var(--age2bg);border-color:var(--age2bd)}
   .tag{font-size:11px;padding:1px 7px;border-radius:999px;margin-left:6px;font-weight:500}
-  .tag.y{background:rgba(255,214,0,.2);color:#ffd84d}.tag.r{background:rgba(255,80,80,.2);color:#ff8080}
+  .tag.y{background:var(--tagy);color:var(--tagyc)}.tag.r{background:var(--tagr);color:var(--tagrc)}
   .star{background:none;border:0;padding:4px;font-size:18px;color:var(--mut)}
-  .star.on{color:#ffd84d}
+  .star.on{color:var(--staron)}
   .ico{font-size:20px;flex:none;width:26px;text-align:center}
   .item .meta{flex:1;min-width:0;cursor:pointer}
   .item .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -57,7 +70,7 @@
   .pw{display:flex;gap:6px;align-items:flex-start}.pw input,.pw textarea{flex:1;font-family:ui-monospace,Menlo,monospace}
   .cf{border:1px dashed var(--line);border-radius:10px;padding:8px}
   .hist{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222838;border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:30;max-width:90vw}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--toast);border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:30;max-width:90vw}
   .strength{height:5px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}.strength i{display:block;height:100%}
   .dirty{color:var(--warn);font-size:13px}
   .hidden{display:none!important}
@@ -74,9 +87,25 @@
   #modeTag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
   body:not(.ro) #modeTag{color:var(--warn);border-color:var(--warn)}
   #lockTimer{font-size:12px;color:var(--mut)}
+  #profSel{font-weight:600}
+  .crumb{background:none;border:0;color:var(--acc);padding:5px 4px}
+  .att{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px}
+  .att button{padding:6px 10px;font-size:13px}
+  .thumb{width:48px;height:48px;object-fit:cover;border-radius:8px;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px}
+  .notebar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .notebar button{padding:6px 10px;min-width:38px;font-size:14px}
+  .rich{min-height:90px;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none;overflow-wrap:anywhere}
+  .rich.big{min-height:220px}
+  .rich:focus{border-color:var(--acc)}
+  .rich:empty:before{content:attr(data-ph);color:var(--mut)}
+  .rich ul,.rich ol{margin:4px 0;padding-left:22px} .rich h3{margin:6px 0;font-size:17px} .rich p{margin:0}
+  body.priv #fNotes{filter:blur(7px)}
+  #viewImg{max-width:100%;max-height:75vh;display:block;margin:0 auto;border-radius:8px}
+  body.priv #attBox, body.priv #viewImg, body.priv #folderBar, body.priv #profList {filter:blur(7px)}
 </style>
 </head>
 <body class="ro">
+<script>try{const t=localStorage.getItem("pwvault.theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}</script>
 
 <!-- LOCK SCREEN -->
 <div id="lock" class="center wrap">
@@ -86,10 +115,10 @@
       <button id="pickBtn">Open vault file…</button>
     </div>
     <div id="haveFile" class="hidden stack">
-      <div><b id="fileName"></b><div id="fileInfo" class="mut"></div><div id="fileHint" class="mut" style="margin-top:6px">💡 Changed the vault on another device? Tap <b>Load latest from iCloud</b> first.</div></div>
+      <div><b id="fileName"></b><div id="fileInfo" class="mut"></div><div id="photoInfo" class="mut"></div><div id="fileHint" class="mut" style="margin-top:6px">💡 Changed the vault on another device? Tap <b>Load latest from iCloud</b> and pick <b>passwords.vault</b> — plus <b>passwords.photos</b> if photos changed.</div></div>
       <div class="row"><button id="reloadBtn" class="grow">Load latest from iCloud</button><a class="link" id="forgetBtn">Forget on this device</a></div>
     </div>
-    <input id="fileIn" type="file" class="hidden">
+    <input id="fileIn" type="file" multiple class="hidden">
     <button id="faceBtn" class="pri hidden">Unlock with Face ID / Touch ID</button>
     <input id="master" type="password" placeholder="Master password" autocomplete="current-password">
     <button id="unlockBtn" class="pri" disabled>Unlock</button>
@@ -117,10 +146,11 @@
 <div id="main" class="wrap hidden">
   <header class="bar">
     <div class="row">
-      <input id="q" class="grow" type="search" placeholder="Search…" autocomplete="off">
+      <select id="profSel" class="grow" title="Profile"></select>
       <button id="menuBtn">⋯</button>
       <button id="lockBtn">Lock</button>
     </div>
+    <div class="row" style="margin-top:8px"><input id="q" class="grow" type="search" placeholder="Search…" autocomplete="off"></div>
     <div class="row" style="margin-top:8px">
       <button id="privBtn" class="toggle">👁 Privacy</button>
       <button id="editBtn" class="toggle">✎ Edit</button>
@@ -129,6 +159,7 @@
       <button id="addBtn" class="pri edit-only">+ Add</button>
       <button id="saveBtn" class="edit-only">Save</button>
     </div>
+    <div class="chips" id="folderBar"></div>
     <div class="row" style="justify-content:space-between"><div class="chips" id="chips"></div><span><span id="dirty" class="dirty"></span> <span id="lockTimer"></span></span></div>
   </header>
   <div class="stats" id="stats"></div>
@@ -142,10 +173,21 @@
   <div><label>Title</label><input id="fTitle"></div>
   <div><label>Category</label><select id="fCatSel"></select>
     <input id="fCat" class="hidden" placeholder="Type a new category" style="margin-top:6px"></div>
+  <div class="row"><div class="grow" id="profWrap"><label>Profile</label><select id="fProf"></select></div>
+    <div class="grow"><label>Folder</label><select id="fFolder"></select></div></div>
   <div id="typeFields" class="stack"></div>
   <div id="customWrap"><label>Extra fields</label><div id="customBox" class="stack"></div>
     <button id="addField" class="edit-only" style="margin-top:8px">+ Add field</button></div>
-  <div><label id="notesLabel">Notes</label><textarea id="fNotes"></textarea></div>
+  <div><label id="notesLabel">Notes</label>
+    <div class="notebar edit-only" id="noteBar">
+      <button data-cmd="bold" title="Bold"><b>B</b></button><button data-cmd="italic" title="Italic"><i>I</i></button><button data-cmd="underline" title="Underline"><u>U</u></button>
+      <button data-cmd="heading" title="Heading">H</button><button data-cmd="insertUnorderedList" title="Bullet list">• List</button><button data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+      <button data-cmd="check" title="Checkbox">☐</button><button data-cmd="removeFormat" title="Clear formatting">✕ Format</button>
+    </div>
+    <div id="fNotes" class="rich" data-ph="Notes…"></div></div>
+  <div id="attWrap"><label>📎 Photos &amp; documents</label><div id="attBox" class="stack"></div>
+    <button id="attAdd" class="edit-only" style="margin-top:8px">+ Add photo or PDF</button>
+    <input id="attIn" type="file" accept="image/*,application/pdf" multiple class="hidden"></div>
   <div class="edit-only"><label style="display:flex;gap:8px;align-items:center;margin:0"><input id="fFav" type="checkbox" style="width:auto"> ⭐ Favourite</label></div>
   <div id="histWrap" class="hidden"><label>Previous passwords</label><div id="histBox"></div></div>
   <div id="fUpdated" class="mut"></div>
@@ -160,6 +202,12 @@
     <div class="grow"><label>Auto-lock when inactive</label><select id="setLock"><option value="1">1 minute</option><option value="3">3 minutes</option><option value="5">5 minutes</option><option value="15">15 minutes</option></select></div>
     <div class="grow"><label>Clear copied values after</label><select id="setClip"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></div>
   </div>
+  <div class="row">
+    <div class="grow"><label>Theme (this device)</label><select id="setTheme"><option value="auto">Auto — follow iPhone / Mac</option><option value="dark">Dark</option><option value="light">Soft light</option></select></div>
+  </div>
+  <div><label>Photos file</label><div id="photoMenuInfo" class="mut"></div><button id="photoLoad" style="margin-top:8px">Load photos file</button></div>
+  <div class="edit-only"><label>Profiles</label><div id="profList" class="stack"></div>
+    <button id="profAdd" style="margin-top:8px">+ Add profile</button></div>
   <div class="edit-only stack">
     <button id="faceAdd">Turn on Face ID / Touch ID</button>
     <button id="faceDel" class="danger">Turn off Face ID / Touch ID</button>
@@ -176,17 +224,26 @@
   <div class="ver" id="verMenu"></div>
 </div></div>
 
+<!-- PHOTO VIEWER -->
+<div id="viewer" class="modal"><div class="sheet stack">
+  <div class="row" style="justify-content:space-between"><b id="viewName"></b><button id="closeView">✕</button></div>
+  <img id="viewImg" alt="">
+  <div class="row"><span class="grow"></span><button id="viewShare">Save / Share</button></div>
+  <div class="mut">Saving or sharing makes an unencrypted copy outside the vault.</div>
+</div></div>
+
 <div id="toast" class="toast"></div>
 
 <script>
 "use strict";
-const VERSION = "3.0.2";
+const VERSION = "5.1";
 /* ===================== CRYPTO =====================
    File v2 = { app, v:2, kdf, iter, salt, wp, ps, wk[], data, prev, savedAt }
    - A random 256-bit vault key encrypts the data (AES-256-GCM).
    - wp: vault key wrapped by your master password (PBKDF2-SHA256, 600k). The password itself is never stored.
    - wk: vault key wrapped by a passkey (Face ID / Touch ID, WebAuthn PRF).
    - prev: the previous save, encrypted the same way (one-step undo).
+   - pid: links this vault to its photos file (passwords.photos), which holds photos & PDFs separately.
    v1 files (older format) still open and are upgraded on the next save. */
 const ITER = 600000;
 const enc = new TextEncoder(), dec = new TextDecoder();
@@ -224,6 +281,12 @@ let S = null;            // unlocked state: {vk, dataKey, salt, iter, wp, ps, wk
 let fileText = null, fileHandle = null, fileLabel = "passwords.vault", loadedAt = 0;
 let pending = null;      // unsaved edits kept encrypted while locked
 let rereadChanged = false;
+let curProfile = null, curFolder = null, draftFiles = [];
+/* Photos live in a separate file (passwords.photos) so the vault stays small and fast. */
+let phFile = null;                 // {blob, name, handle, lastModified, size, loadedAt} — the encrypted photos file
+let pendingPh = null;              // encrypted bytes of unsaved new photos, kept while locked
+const PH_MAGIC = enc.encode("PVPH1\n");
+const kb = n => n > 1048576 ? (n/1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n/1024)) + " KB";
 let dirty = false, editingId = null, cat = "all", clipTimer = null, idleTimer = null, idleAt = 0, manualPriv = false;
 const DAY = 86400000;
 const settings = () => Object.assign({lockMin:3, clipSec:30}, S && S.data.settings);
@@ -245,7 +308,7 @@ async function quiet(fn){
   try { return await fn(); } finally { clearTimeout(safety); release(); }
 }
 function ask(msg){ quietN++; try { return confirm(msg); } finally { setTimeout(()=>quietN--, 800); } }
-function askText(msg){ quietN++; try { return prompt(msg); } finally { setTimeout(()=>quietN--, 800); } }
+function askText(msg, def){ quietN++; try { return prompt(msg, def||""); } finally { setTimeout(()=>quietN--, 800); } }
 
 /* ===================== LOCK SCREEN ===================== */
 const faceSupported = () => (location.protocol === "https:" || location.hostname === "localhost") && !!window.PublicKeyCredential;
@@ -265,6 +328,7 @@ function refreshLockScreen(){
     $("reloadBtn").textContent = fileHandle ? "Open a different file" : "Load latest from iCloud";
     $("fileHint").classList.toggle("hidden", !!fileHandle);
   }
+  $("photoInfo").textContent = phFile ? `🖼 ${phFile.name}` + (phFile.blob ? ` · ${kb(phFile.blob.size)}` : "") + (phFile.handle ? " · read from disk when you unlock" : phFile.loadedAt ? ` · loaded on this device ${fmtDate(phFile.loadedAt)}` : "") : "";
   $("faceBtn").classList.toggle("hidden", !(has && f.v===2 && f.wk && f.wk.length && faceSupported()));
 }
 async function remember(){
@@ -272,6 +336,34 @@ async function remember(){
   loadedAt = Date.now();
   await DB.set("file", {text:fileText, name:fileLabel, loadedAt});
   if (fileHandle) { if (!await DB.set("handle", fileHandle)) await DB.del("handle"); } else await DB.del("handle");
+}
+async function rememberPhotos(){
+  if (!phFile) return;
+  phFile.loadedAt = Date.now();
+  // On Mac (file handle) the file is re-read from disk, so only the location is stored.
+  await DB.set("photos", {blob: phFile.handle ? null : phFile.blob, name:phFile.name, loadedAt:phFile.loadedAt, lastModified:phFile.lastModified, size:phFile.size});
+  if (phFile.handle) { if (!await DB.set("photoHandle", phFile.handle)) await DB.del("photoHandle"); } else await DB.del("photoHandle");
+}
+async function sniff(file){
+  const b = new Uint8Array(await file.slice(0, 6).arrayBuffer());
+  if (PH_MAGIC.every((x,i) => b[i] === x)) return "photos";
+  if (b[0] === 0x7b) return "vault";
+  return null;
+}
+/* Accepts one or both files (vault and/or photos) picked together. */
+async function takeFiles(list){
+  for (const {file, handle} of list) {
+    const kind = await sniff(file);
+    if (kind === "vault") {
+      if (S) { toast("To open a different vault file, lock first"); continue; }
+      await loadFile(await file.text(), file.name, handle);
+    } else if (kind === "photos") {
+      phFile = {blob:file, name:file.name, handle:handle||null, lastModified:file.lastModified, size:file.size};
+      await rememberPhotos();
+      if (S) { await openPhotos(); if (S.ph.err) toast(S.ph.err); else toast("Photos file loaded"); render(); if ($("edit").classList.contains("open")) drawFiles(); if ($("menu").classList.contains("open")) menuInfo(); }
+    } else toast(`${file.name} is not a vault or photos file`);
+  }
+  refreshLockScreen();
 }
 async function loadFile(text, name, handle){
   try { if (JSON.parse(text).app !== "pwvault") throw 0; } catch { $("lockMsg").textContent = "That is not a vault file."; return; }
@@ -281,37 +373,51 @@ async function loadFile(text, name, handle){
 }
 function pickFile(){ return quiet(async () => {
   if (window.showOpenFilePicker) {            // Chrome/Edge desktop: can re-read and save in place
-    try { const [h] = await showOpenFilePicker({multiple:false}); const f = await h.getFile(); await loadFile(await f.text(), f.name, h); } catch {}
-  } else $("fileIn").click();                  // Safari / iPhone: Files picker (iCloud, Cryptomator)
+    try { const hs = await showOpenFilePicker({multiple:true}); const list = []; for (const h of hs) list.push({file: await h.getFile(), handle:h}); await takeFiles(list); } catch {}
+  } else $("fileIn").click();                  // Safari / iPhone: Files picker (iCloud, Cryptomator) — select one or both files
 }); }
 $("pickBtn").onclick = pickFile;
 $("reloadBtn").onclick = pickFile;
-$("fileIn").onchange = async e => { const f = e.target.files[0]; if (f) await loadFile(await f.text(), f.name, null); e.target.value=""; };
+$("fileIn").onchange = async e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) await takeFiles(fs.map(f => ({file:f, handle:null}))); };
 $("forgetBtn").onclick = async () => {
   if (!ask("Forget the vault on this device? Your file in iCloud is not touched — you'll just pick it again next time.")) return;
-  await DB.del("file"); await DB.del("handle");
-  fileText = null; fileHandle = null; pending = null; loadedAt = 0; refreshLockScreen(); toast("Forgotten on this device");
+  await DB.del("file"); await DB.del("handle"); await DB.del("photos"); await DB.del("photoHandle");
+  fileText = null; fileHandle = null; phFile = null; pending = null; pendingPh = null; loadedAt = 0; refreshLockScreen(); toast("Forgotten on this device");
 };
 (async function restoreRemembered(){
   const r = await DB.get("file"); if (!r || !r.text) return refreshLockScreen();
   fileText = r.text; fileLabel = r.name || fileLabel; loadedAt = r.loadedAt || 0;
   const h = await DB.get("handle"); if (h && h.getFile) fileHandle = h;
+  const p = await DB.get("photos"), ph = await DB.get("photoHandle");
+  if (p) phFile = {blob:p.blob || null, name:p.name || "passwords.photos", handle:(ph && ph.getFile) ? ph : null, lastModified:p.lastModified, size:p.size, loadedAt:p.loadedAt};
   refreshLockScreen();
 })();
 
 /* Mac Chrome/Edge: read the newest version of the file from disk before unlocking. */
+async function allowed(h){
+  let p = h.queryPermission ? await h.queryPermission({mode:"readwrite"}) : "granted";
+  if (p !== "granted") p = await h.requestPermission({mode:"readwrite"});
+  return p === "granted";
+}
 async function reread(){
   rereadChanged = false;
-  if (!fileHandle) return;
-  try {
-    let p = fileHandle.queryPermission ? await fileHandle.queryPermission({mode:"readwrite"}) : "granted";
-    if (p !== "granted") p = await fileHandle.requestPermission({mode:"readwrite"});
-    if (p !== "granted") return;
-    const t = await (await fileHandle.getFile()).text();
-    if (JSON.parse(t).app !== "pwvault") return;
-    if (t !== fileText) { fileText = t; rereadChanged = true; }
-    await remember(); refreshLockScreen();
-  } catch { toast("Couldn't read the file from disk — using the copy on this device"); }
+  if (fileHandle) {
+    try {
+      if (await allowed(fileHandle)) {
+        const t = await (await fileHandle.getFile()).text();
+        if (JSON.parse(t).app === "pwvault") { if (t !== fileText) { fileText = t; rereadChanged = true; } await remember(); }
+      }
+    } catch { toast("Couldn't read the vault file from disk — using the copy on this device"); }
+  }
+  if (phFile && phFile.handle) {
+    try {
+      if (await allowed(phFile.handle)) {
+        const f = await phFile.handle.getFile();     // always take a fresh snapshot of the photos file
+        phFile.blob = f; phFile.lastModified = f.lastModified; phFile.size = f.size; await rememberPhotos();
+      }
+    } catch { toast("Couldn't read the photos file from disk"); }
+  }
+  refreshLockScreen();
 }
 
 async function openWithPassword(pw){
@@ -324,7 +430,7 @@ async function openWithPassword(pw){
     let pt; try { pt = await aesDec(k, f); } catch { throw new Error("Wrong password"); }
     // stable vault key for this old file until it is saved in the new format
     const vk = new Uint8Array(await crypto.subtle.digest("SHA-256", new Uint8Array([...bits, ...enc.encode("pwvault-v1-upgrade")]))); bits.fill(0);
-    return {vk, dataKey: await rawKey(vk), salt, iter:f.iter, wp: await aesEnc(k, vk), ps:null, wk:[], prev:null, data: JSON.parse(dec.decode(pt))};
+    return {vk, dataKey: await rawKey(vk), salt, iter:f.iter, wp: await aesEnc(k, vk), ps:null, wk:[], prev:null, prevRefs:[], legacyAtt:{}, pid:null, data: JSON.parse(dec.decode(pt))};
   }
   const k = await pwKey(pw, salt, f.iter);
   let vk; try { vk = await aesDec(k, f.wp); } catch { throw new Error("Wrong password"); }
@@ -333,22 +439,37 @@ async function openWithPassword(pw){
 async function finishOpen(f, vk){
   const dataKey = await rawKey(vk);
   let pt; try { pt = await aesDec(dataKey, f.data); } catch { throw new Error("File is damaged or was modified"); }
-  return {vk, dataKey, salt:unb64(f.salt), iter:f.iter, wp:f.wp, ps:f.ps||null, wk:f.wk||[], prev:f.prev||null, data: JSON.parse(dec.decode(pt))};
+  let legacyAtt = {}, prevRefs = [];
+  if (f.att) { try { legacyAtt = JSON.parse(dec.decode(await aesDec(dataKey, f.att))); } catch { throw new Error("Attachments are damaged or were modified"); } }
+  if (f.prev) { try { prevRefs = refsOf(JSON.parse(dec.decode(await aesDec(dataKey, f.prev)))); } catch {} }
+  return {vk, dataKey, salt:unb64(f.salt), iter:f.iter, wp:f.wp, ps:f.ps||null, wk:f.wk||[], prev:f.prev||null, prevRefs, legacyAtt, pid:f.pid||null, data: JSON.parse(dec.decode(pt))};
 }
 async function afterUnlock(st){
-  S = st; S.data.entries ||= []; S.data.settings ||= {};
-  S.data.entries.forEach(e => { e.type ||= "login"; });
+  S = st; S.prevRefs ||= []; S.legacyAtt ||= {}; migrate(S.data);
+  S.ph = {index:{}, added:{}, ok:false, err:"", bodyStart:0, force:false};
   S.snapshot = JSON.stringify(S.data);
   setDirty(false);
   if (pending && rereadChanged && !ask("You had unsaved changes, but the vault was updated on another device since.\n\nOK = keep your unsaved changes (saving will replace the other device's changes)\nCancel = discard them and use the latest file")) pending = null;
   if (pending) {
-    try { S.data = JSON.parse(dec.decode(await aesDec(S.dataKey, pending))); S.data.entries ||= []; setDirty(true); toast("Your unsaved changes were restored"); }
+    try { const p = JSON.parse(dec.decode(await aesDec(S.dataKey, pending)));
+          if (p.data) { S.data = migrate(p.data); Object.assign(S.legacyAtt, p.att || {}); if (p.pid && !S.pid) S.pid = p.pid;
+            for (const [id, meta] of Object.entries(p.phNew || {})) if (pendingPh && pendingPh[id]) S.ph.added[id] = {meta, ct:pendingPh[id]};
+            if (p.force) S.ph.force = true; }
+          else S.data = migrate(p);
+          setDirty(true); toast("Your unsaved changes were restored"); }
     catch {}
-    pending = null;
+    pending = null; pendingPh = null;
   } else if (rereadChanged) toast("Loaded the latest version from disk");
   $("master").value = ""; $("lockMsg").textContent = "";
   manualPriv = false; setPrivacy(false); setEditMode(false, true);
+  if (!S.data.profiles.some(p => p.id === curProfile) && curProfile !== "*") curProfile = S.data.profiles[0].id;
+  if (curFolder && !S.data.folders.some(f => f.id === curFolder)) curFolder = null;
+  await openPhotos();
+  if (Object.keys(S.legacyAtt).length) await migrateLegacy();
   idleAt = 0; leftAt = 0; show("main"); render(); armIdle();
+  const missing = refsOf(S.data).filter(id => !metaOf(id)).length;
+  if (S.ph.err) toast(S.ph.err);
+  else if (missing) toast(`${missing} photo${missing>1?"s":""} not loaded — ⋯ → Load photos file to see them`);
 }
 async function unlock(){
   if (!fileText) return;
@@ -428,8 +549,8 @@ $("doCreate").onclick = async () => {
   if (a.length < 12) return $("createErr").textContent = "Use at least 12 characters.";
   if (a !== b) return $("createErr").textContent = "Passwords don't match.";
   const salt = rand(16), vk = rand(32);
-  const st = {vk, dataKey: await rawKey(vk), salt, iter:ITER, wp: await aesEnc(await pwKey(a, salt, ITER), vk), ps:null, wk:[], prev:null, data:{entries:[], settings:{}}};
-  $("np1").value = $("np2").value = ""; fileText = null; fileHandle = null; fileLabel = "passwords.vault"; pending = null; rereadChanged = false;
+  const st = {vk, dataKey: await rawKey(vk), salt, iter:ITER, wp: await aesEnc(await pwKey(a, salt, ITER), vk), ps:null, wk:[], prev:null, prevRefs:[], legacyAtt:{}, pid:null, data:{entries:[], settings:{}}};
+  $("np1").value = $("np2").value = ""; curProfile = null; curFolder = null; fileText = null; phFile = null; fileHandle = null; fileLabel = "passwords.vault"; pending = null; rereadChanged = false;
   await afterUnlock(st); setDirty(true); setEditMode(true);
   toast("Vault created. Tap Save and store it in iCloud Drive.");
 };
@@ -440,13 +561,19 @@ $("doCreate").onclick = async () => {
    Otherwise: save dialog or download. Every successful save also updates the copy remembered on this device. */
 async function buildFile(){
   const now = JSON.stringify(S.data);
-  if (S.snapshot && S.snapshot !== now) S.prev = await aesEnc(S.dataKey, enc.encode(S.snapshot));
+  if (S.snapshot && S.snapshot !== now) { S.prev = await aesEnc(S.dataKey, enc.encode(S.snapshot)); S.prevRefs = refsOf(JSON.parse(S.snapshot)); }
   const out = JSON.stringify({app:"pwvault", v:2, kdf:"PBKDF2-SHA256", iter:S.iter, salt:b64(S.salt), wp:S.wp,
-    ps:S.ps, wk:S.wk, data: await aesEnc(S.dataKey, enc.encode(now)), prev:S.prev, savedAt:new Date().toISOString()});
+    ps:S.ps, wk:S.wk, data: await aesEnc(S.dataKey, enc.encode(now)), prev:S.prev, pid:S.pid||null, savedAt:new Date().toISOString()});
   return {out, now};
 }
 async function saved(out, now){ fileText = out; S.snapshot = now; setDirty(false); await remember(); }
+function download(file){ const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = file.name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 10000); }
+async function writeHandle(h, data){ const w = await h.createWritable(); await w.write(data); await w.close(); }
+/* Photos are written FIRST, then the vault, so the vault never points at photos that weren't saved. */
 async function saveVault(){ return quiet(async () => {
+  const curRefs = new Set(refsOf(S.data));
+  const needPh = S.ph.force || Object.keys(S.ph.added).some(id => curRefs.has(id));
+  if (needPh && [...curRefs].some(id => !metaOf(id))) return toast("Load your photos file first (⋯ → Load photos file), then Save — otherwise existing photos would be lost");
   if (fileHandle && fileHandle.createWritable) {
     try {
       const cur = await (await fileHandle.getFile()).text();
@@ -455,22 +582,52 @@ async function saveVault(){ return quiet(async () => {
       }
     } catch {}
   }
+  if (needPh && phFile && phFile.handle) {
+    try {
+      const cf = await phFile.handle.getFile();
+      if (phFile.lastModified && (cf.lastModified !== phFile.lastModified || cf.size !== phFile.size) &&
+          !ask("⚠️ The photos file was changed on another device after you opened it.\n\nOK = overwrite it (photos added on the other device are lost)\nCancel = don't save")) {
+        return toast("Not saved. To get the other device's photos: Lock, then unlock.");
+      }
+    } catch {}
+  }
   const {out, now} = await buildFile();
+  const ph = needPh ? await buildPhotos() : null;
+  const phName = (phFile && phFile.name) || "passwords.photos";
+  const vFile = new File([out], fileLabel, {type:"application/octet-stream"});
+  const pFile = ph ? new File([ph.blob], phName, {type:"application/octet-stream"}) : null;
+  const both = ph ? " (both files)" : "";
+
+  // 1) Mac Chrome/Edge with the files' locations: write in place
   if (fileHandle && fileHandle.createWritable) {
-    try { const w = await fileHandle.createWritable(); await w.write(out); await w.close(); await saved(out, now); return toast("Saved ✓"); } catch {}
+    try {
+      if (ph) {
+        let h = phFile && phFile.handle;
+        if (!h && window.showSaveFilePicker) h = await showSaveFilePicker({suggestedName:phName});
+        if (h) { await writeHandle(h, ph.blob); const nf = await h.getFile(); await photosSaved(ph, nf, h, nf.name); }
+        else { download(pFile); await photosSaved(ph, ph.blob, null, phName); }
+      }
+      await writeHandle(fileHandle, out); await saved(out, now); return toast("Saved ✓" + both);
+    } catch(e){ if (e.name === "AbortError") return toast("Not saved"); }
   }
-  const file = new File([out], fileLabel, {type:"application/octet-stream"});
-  if (navigator.canShare && navigator.canShare({files:[file]}) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
-    try { await navigator.share({files:[file]}); await saved(out, now); return toast("Choose Save to Files → replace the old vault"); }
-    catch(e){ if (e.name==="AbortError") return; }
+  // 2) iPhone / iPad: share sheet → Save to Files → Replace
+  const files = ph ? [pFile, vFile] : [vFile];
+  if (navigator.canShare && navigator.canShare({files}) && isMobile) {
+    try { await navigator.share({files}); if (ph) await photosSaved(ph, ph.blob, null, phName); await saved(out, now);
+          return toast("Save to Files → same folder → Replace" + both); }
+    catch(e){ if (e.name === "AbortError") return; }
   }
+  // 3) Desktop without saved locations: choose where to save
   if (window.showSaveFilePicker) {
-    try { fileHandle = await showSaveFilePicker({suggestedName:fileLabel}); const w = await fileHandle.createWritable(); await w.write(out); await w.close(); await saved(out, now); return toast("Saved ✓"); }
-    catch(e){ if (e.name==="AbortError") return; }
+    try {
+      if (ph) { const h = await showSaveFilePicker({suggestedName:phName}); await writeHandle(h, ph.blob); const nf = await h.getFile(); await photosSaved(ph, nf, h, nf.name); }
+      fileHandle = await showSaveFilePicker({suggestedName:fileLabel}); await writeHandle(fileHandle, out); await saved(out, now); return toast("Saved ✓" + both);
+    } catch(e){ if (e.name === "AbortError") return toast("Not saved"); }
   }
-  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = fileLabel; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 5000); await saved(out, now);
-  toast("Downloaded — move it over the old vault file");
+  // 4) Fallback: download
+  if (ph) { download(pFile); await photosSaved(ph, ph.blob, null, phName); }
+  download(vFile); await saved(out, now);
+  toast("Downloaded — move it over the old file" + (ph ? "s" : ""));
 }); }
 $("saveBtn").onclick = saveVault;
 
@@ -480,12 +637,19 @@ async function lock(reason){
   const st = S; S = null;                       // stop using the data immediately
   clearTimeout(idleTimer); clearInterval(tick); clearTimeout(leaveTimer); leftAt = 0;
   $("list").innerHTML = ""; $("stats").innerHTML = ""; $("chips").innerHTML = ""; $("q").value = "";
-  $("typeFields").innerHTML = ""; $("customBox").innerHTML = ""; $("fNotes").value = ""; $("histBox").innerHTML = "";
-  closeModal("edit"); closeModal("menu"); editingId = null;
+  $("typeFields").innerHTML = ""; $("customBox").innerHTML = ""; $("fNotes").innerHTML = ""; $("histBox").innerHTML = "";
+  $("attBox").innerHTML = ""; $("viewImg").removeAttribute("src"); $("photoMenuInfo").textContent = ""; $("folderBar").innerHTML = ""; $("profSel").innerHTML = ""; $("profList").innerHTML = ""; draftFiles = [];
+  closeModal("edit"); closeModal("menu"); closeModal("viewer"); editingId = null;
   show("lock"); refreshLockScreen();
   const wasDirty = dirty; setDirty(false);
-  if (wasDirty) { try { pending = await aesEnc(st.dataKey, enc.encode(JSON.stringify(st.data))); } catch { pending = null; } }
-  st.vk.fill(0); st.data = null; st.dataKey = null;
+  if (wasDirty) {
+    try {
+      const phNew = {}; pendingPh = {};
+      for (const [id, x] of Object.entries(st.ph.added)) { phNew[id] = x.meta; pendingPh[id] = x.ct; }   // ct is already encrypted
+      pending = await aesEnc(st.dataKey, enc.encode(JSON.stringify({data:st.data, att:st.legacyAtt, pid:st.pid, phNew, force:st.ph.force})));
+    } catch { pending = null; pendingPh = null; }
+  }
+  st.vk.fill(0); st.data = null; st.ph = null; st.legacyAtt = null; st.dataKey = null;
   document.body.classList.add("ro"); manualPriv = false; setPrivacy(false);
   $("lockMsg").textContent = (reason === "idle" ? "Locked after inactivity." : reason === "leave" ? "Locked because you were away from the page." : "")
     + (wasDirty ? " Unsaved changes are kept until you close this page." : "");
@@ -611,10 +775,81 @@ function warning(e){
   return {level:0};
 }
 
+/* ===================== PROFILES & FOLDERS ===================== */
+function migrate(d){
+  d.entries ||= []; d.settings ||= {}; d.folders ||= [];
+  if (!d.profiles || !d.profiles.length) d.profiles = [{id:uid(), name:"Me"}];
+  const ids = new Set(d.profiles.map(p=>p.id)), fids = new Set(d.folders.map(f=>f.id));
+  d.entries.forEach(e => { e.type ||= "login"; if (!ids.has(e.profile)) e.profile = d.profiles[0].id; if (e.folder && !fids.has(e.folder)) e.folder = null; });
+  return d;
+}
+const refsOf = d => (d && d.entries || []).flatMap(e => (e.files || []).map(f => f.id));
+const profName = id => (S.data.profiles.find(p=>p.id===id) || {}).name || "";
+function folderPath(id){
+  const parts = []; let f = S.data.folders.find(x=>x.id===id), n = 0;
+  while (f && n++ < 50) { parts.unshift(f.name); f = S.data.folders.find(x=>x.id===f.parent); }
+  return parts.join(" › ");
+}
+function descendants(id){
+  const out = new Set([id]); let added = true;
+  while (added) { added = false; S.data.folders.forEach(f => { if (f.parent && out.has(f.parent) && !out.has(f.id)) { out.add(f.id); added = true; } }); }
+  return out;
+}
+function renderProfiles(){
+  const ps = S.data.profiles;
+  if ((curProfile === "*" && ps.length < 2) || (curProfile !== "*" && !ps.some(p => p.id === curProfile))) { curProfile = ps[0].id; curFolder = null; }
+  $("profSel").innerHTML = ps.map(p=>`<option value="${p.id}">👤 ${esc(p.name)}</option>`).join("") +
+    (ps.length > 1 ? `<option value="*">👥 All profiles</option>` : "") + `<option value="__add__">➕ Add profile…</option>`;
+  $("profSel").value = curProfile;
+}
+function addProfile(){
+  if (isRO()) { toast("Turn on ✎ Edit to add a profile"); return null; }
+  const n = (askText("Name for the new profile (e.g. Wife, Dad, Kids):") || "").trim(); if (!n) return null;
+  const p = {id:uid(), name:n}; S.data.profiles.push(p); setDirty(true); return p;
+}
+$("profSel").onchange = () => {
+  const v = $("profSel").value;
+  if (v === "__add__") { const p = addProfile(); if (p) curProfile = p.id; renderProfiles(); render(); return; }
+  curProfile = v; curFolder = null; render();
+};
+function renderFolders(){
+  const bar = $("folderBar");
+  if (curProfile === "*") { bar.innerHTML = ""; bar.classList.add("hidden"); return; }
+  bar.classList.remove("hidden");
+  const chain = []; let f = S.data.folders.find(x=>x.id===curFolder), n = 0;
+  while (f && n++ < 50) { chain.unshift(f); f = S.data.folders.find(x=>x.id===f.parent); }
+  const subs = S.data.folders.filter(x => x.profile === curProfile && (x.parent||null) === (curFolder||null)).sort((a,b)=>a.name.localeCompare(b.name));
+  const count = id => { const d = descendants(id); return S.data.entries.filter(e => d.has(e.folder)).length; };
+  bar.innerHTML = `<button class="crumb" data-fold="">🏠 All</button>` +
+    chain.map(c => `<span class="mut">›</span><button class="crumb" data-fold="${c.id}">${esc(c.name)}</button>`).join("") +
+    subs.map(x => `<button class="chip" data-fold="${x.id}">📁 ${esc(x.name)} <span class="mut">${count(x.id)}</span></button>`).join("") +
+    `<button class="chip edit-only" data-fact="new">+ Folder</button>` +
+    (curFolder ? `<button class="chip edit-only" data-fact="ren">✎ Rename</button><button class="chip edit-only danger" data-fact="del">🗑 Delete folder</button>` : "");
+}
+$("folderBar").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.fold !== undefined) { curFolder = b.dataset.fold || null; return render(); }
+  const f = S.data.folders.find(x=>x.id===curFolder);
+  if (b.dataset.fact === "new") {
+    const n = (askText(curFolder ? `New folder inside “${folderPath(curFolder)}”:` : "New folder name:") || "").trim(); if (!n) return;
+    S.data.folders.push({id:uid(), profile:curProfile, parent:curFolder, name:n}); setDirty(true); render();
+  } else if (b.dataset.fact === "ren" && f) {
+    const n = (askText("Rename folder:", f.name) || "").trim(); if (!n) return; f.name = n; setDirty(true); render();
+  } else if (b.dataset.fact === "del" && f) {
+    const inside = S.data.entries.filter(x=>x.folder===f.id).length, subs = S.data.folders.filter(x=>x.parent===f.id).length;
+    if (!ask(`Delete folder “${f.name}”?` + (inside||subs ? `\nIts ${inside} entr${inside===1?"y":"ies"} and ${subs} subfolder${subs===1?"":"s"} move up one level. Nothing is deleted.` : ""))) return;
+    S.data.entries.forEach(x => { if (x.folder === f.id) x.folder = f.parent || null; });
+    S.data.folders.forEach(x => { if (x.parent === f.id) x.parent = f.parent || null; });
+    S.data.folders = S.data.folders.filter(x => x.id !== f.id); curFolder = f.parent || null; setDirty(true); render();
+  }
+};
+
 /* ===================== RENDER ===================== */
 function render(){
   if (!S) return;
-  const E = S.data.entries;
+  renderProfiles(); renderFolders();
+  const inFolder = curFolder ? descendants(curFolder) : null;
+  const E = S.data.entries.filter(e => (curProfile === "*" || e.profile === curProfile) && (!inFolder || inFolder.has(e.folder)));
   const types = Object.keys(TYPES).filter(t => E.some(e => (e.type||"login") === t));
   const cats = [...new Set(E.map(e=>e.category).filter(Boolean))].sort();
   const chips = [["all","All"],["fav","⭐ Favourites"], ...(types.length>1 ? types.map(t=>["type:"+t, TYPES[t].icon+" "+TYPES[t].plural]) : []), ...cats.map(c=>["cat:"+c, c])];
@@ -630,7 +865,7 @@ function render(){
     <div class="stat"><b class="${reused?"warn":""}">${reused}</b><span class="mut">reused</span></div>
     <div class="stat"><b class="${attn?"badc":""}">${attn}</b><span class="mut">need attention</span></div>`;
   const q = $("q").value.trim().toLowerCase();
-  const searchable = e => [e.title, e.category, e.notes, typeOf(e).name,
+  const searchable = e => [e.title, e.category, e.notes, typeOf(e).name, e.folder && folderPath(e.folder), ...(e.files||[]).map(f=>f.name),
       ...typeOf(e).fields.filter(f=>!f[2]).map(f=>e[f[0]]),
       ...(e.custom||[]).flatMap(c => c.secret ? [c.label] : [c.label, c.value])];
   const rows = E.filter(e => (cat==="all" || (cat==="fav" ? e.fav : cat.startsWith("type:") ? (e.type||"login")===cat.slice(5) : e.category===cat.slice(4))) &&
@@ -644,14 +879,15 @@ function render(){
     return `<div class="item ${cls}" data-id="${e.id}">
       <button class="star ${e.fav?"on":""}" data-fav="${e.id}" title="Favourite">${e.fav?"★":"☆"}</button>
       <span class="ico">${T.icon}</span>
-      <div class="meta"><div class="t">${esc(e.title||"(untitled)")}${counts[e.password]>1 && (e.type||"login")==="login"?' <span class="warn" title="Reused">⚠︎</span>':""}${tag}</div>
-        <div class="u">${esc(subtitle(e))}</div></div>${btns}
-    </div>`; }).join("") : `<div class="mut" style="padding:20px;text-align:center">${E.length?"No matches.":"Empty vault — turn on ✎ Edit, then tap + Add or import your CSV from the ⋯ menu."}</div>`;
+      <div class="meta"><div class="t">${esc(e.title||"(untitled)")}${(e.files||[]).length?' <span title="Has attachments">📎</span>':""}${counts[e.password]>1 && (e.type||"login")==="login"?' <span class="warn" title="Reused">⚠︎</span>':""}${tag}</div>
+        <div class="u">${esc([curProfile==="*" ? "👤 "+profName(e.profile) : "", e.folder && e.folder!==curFolder ? "📁 "+(S.data.folders.find(f=>f.id===e.folder)||{}).name : "", subtitle(e)].filter(Boolean).join(" · "))}</div></div>${btns}
+    </div>`; }).join("") : `<div class="mut" style="padding:20px;text-align:center">${E.length?"No matches.":(curFolder ? "This folder is empty." : "Nothing here yet — turn on ✎ Edit, then tap + Add or import your CSV from the ⋯ menu.")}</div>`;
 }
 $("q").oninput = render;
 $("chips").onclick = e => { const c = e.target.dataset.cat; if (c) { cat = c; render(); } };
 $("list").onclick = e => {
   const t = e.target.closest("button") || e.target, get = id => S.data.entries.find(x=>x.id===id);
+  if (!S) return;
   if (t.dataset.cf) return copy(get(t.dataset.cf)[t.dataset.k], fieldLabel(get(t.dataset.cf), t.dataset.k));
   if (t.dataset.cu) return copy(get(t.dataset.cu).username, "Username");
   if (t.dataset.fav) {
@@ -692,6 +928,199 @@ $("fCatSel").onchange = () => {
 };
 const catValue = () => $("fCatSel").value === NEW_CAT ? $("fCat").value.trim() : $("fCatSel").value;
 
+/* ===================== PROFILE / FOLDER PICKERS ===================== */
+function fillProfiles(sel){
+  $("fProf").innerHTML = S.data.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+  $("fProf").value = sel; $("profWrap").classList.toggle("hidden", S.data.profiles.length < 2);
+}
+function fillFolders(pid, sel){
+  const fs = S.data.folders.filter(f=>f.profile===pid).map(f=>[f.id, folderPath(f.id)]).sort((a,b)=>a[1].localeCompare(b[1]));
+  $("fFolder").innerHTML = `<option value="">— No folder —</option>` + fs.map(([id,p])=>`<option value="${id}">📁 ${esc(p)}</option>`).join("");
+  $("fFolder").value = sel || "";
+}
+$("fProf").onchange = () => fillFolders($("fProf").value, null);
+
+/* ===================== PHOTOS FILE (passwords.photos) =====================
+   Layout: "PVPH1\n" + 4-byte header length + header JSON + encrypted photo blobs.
+   Header: {app, v, pid, savedAt, index:{iv,ct}} — the index (names, sizes, small previews, positions) is encrypted.
+   Each photo/PDF is encrypted on its own (AES-256-GCM, vault key), so viewing one reads only that one. */
+const MAX_PDF = 5 * 1024 * 1024, MAX_EDGE = 1600, JPEG_Q = 0.75, THUMB_EDGE = 240;
+const metaOf = id => S.ph.added[id] ? S.ph.added[id].meta : S.ph.index[id];
+const attBytes = () => [...Object.values(S.ph.index), ...Object.values(S.ph.added).map(x=>x.meta)].reduce((a,m) => a + (m.size||0), 0);
+const readDataURL = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+async function openPhotos(){
+  if (!S) return;
+  S.ph.ok = false; S.ph.err = ""; S.ph.index = {};
+  if (!phFile || !phFile.blob) return;
+  try {
+    const head = new Uint8Array(await phFile.blob.slice(0, 10).arrayBuffer());
+    if (!PH_MAGIC.every((x,i) => head[i] === x)) throw 0;
+    const len = new DataView(head.buffer).getUint32(6);
+    const h = JSON.parse(dec.decode(await phFile.blob.slice(10, 10 + len).arrayBuffer()));
+    if (S.pid && h.pid !== S.pid) { S.ph.err = "That photos file belongs to a different vault"; return; }
+    const idx = JSON.parse(dec.decode(await aesDec(S.dataKey, h.index)));
+    S.ph.index = idx.items || {}; S.ph.bodyStart = 10 + len; S.ph.ok = true;
+    if (!S.pid) S.pid = h.pid;
+  } catch { S.ph.err = "Couldn't open the photos file (wrong vault or damaged)"; }
+}
+async function getPhotoBytes(id){
+  const x = S.ph.added[id];
+  if (x) return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(x.meta.iv)}, S.dataKey, x.ct));
+  const m = S.ph.index[id]; if (!m || !S.ph.ok) return null;
+  const start = S.ph.bodyStart + m.off;
+  const ct = await phFile.blob.slice(start, start + m.len).arrayBuffer();
+  return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(m.iv)}, S.dataKey, ct));
+}
+async function putPhoto(id, name, mime, bytes, thumb){
+  const iv = rand(12);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, S.dataKey, bytes));
+  S.ph.added[id] = {meta:{name, mime, size:bytes.length, thumb:thumb||null, iv:b64(iv)}, ct};
+  if (!S.pid) S.pid = uid();
+}
+/* Builds the new photos file from the old one (unchanged photos are copied without re-reading into memory). */
+async function buildPhotos(){
+  const keep = new Set([...refsOf(S.data), ...(S.prevRefs || [])]);
+  const parts = [], items = {}; let off = 0;
+  for (const id of keep) {
+    const a = S.ph.added[id], m = S.ph.index[id];
+    if (a) { parts.push(a.ct); items[id] = {...a.meta, off, len:a.ct.length}; off += a.ct.length; }
+    else if (m && S.ph.ok) { const st = S.ph.bodyStart + m.off; parts.push(phFile.blob.slice(st, st + m.len)); items[id] = {...m, off}; off += m.len; }
+  }
+  const header = enc.encode(JSON.stringify({app:"pwphotos", v:1, pid:S.pid, savedAt:new Date().toISOString(),
+                                            index: await aesEnc(S.dataKey, enc.encode(JSON.stringify({items})))}));
+  const lenB = new Uint8Array(4); new DataView(lenB.buffer).setUint32(0, header.length);
+  return {blob: new Blob([PH_MAGIC, lenB, header, ...parts], {type:"application/octet-stream"}), items, bodyStart: 10 + header.length};
+}
+async function photosSaved(ph, blob, handle, name){
+  S.ph.index = ph.items; S.ph.bodyStart = ph.bodyStart; S.ph.added = {}; S.ph.force = false; S.ph.ok = true; S.ph.err = "";
+  phFile = {blob, name, handle: handle || (phFile && phFile.handle) || null, lastModified: blob.lastModified || Date.now(), size: blob.size};
+  await rememberPhotos();
+}
+async function loadImg(src){ const img = new Image(); await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = src; }); return img; }
+function drawScaled(img, edge, q){
+  const sc = Math.min(1, edge / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.naturalWidth*sc)); c.height = Math.max(1, Math.round(img.naturalHeight*sc));
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  const d = c.toDataURL("image/jpeg", q); c.width = c.height = 0;
+  return d.split(",")[1];
+}
+/* iPhone photos (12–48 MP) → 1600 px long side, ~250–350 KB, plus a ~10 KB preview. */
+async function shrink(src){
+  let img; try { img = await loadImg(src); } catch { return null; }
+  return {bytes: unb64(drawScaled(img, MAX_EDGE, JPEG_Q)), thumb: drawScaled(img, THUMB_EDGE, 0.6)};
+}
+async function migrateLegacy(){
+  const L = S.legacyAtt;
+  for (const [id, a] of Object.entries(L)) {
+    const bytes = unb64(a.b64); let thumb = null;
+    if (a.mime.startsWith("image/")) { try { thumb = drawScaled(await loadImg(`data:${a.mime};base64,${a.b64}`), THUMB_EDGE, 0.6); } catch {} }
+    await putPhoto(id, a.name, a.mime, bytes, thumb);
+  }
+  S.legacyAtt = {}; S.ph.force = true; setDirty(true);
+  toast("Photos are moving to a separate passwords.photos file — turn on Edit and tap Save");
+}
+async function addFiles(files){
+  if (S.ph.err) return toast(S.ph.err);
+  if (refsOf(S.data).some(id => !metaOf(id))) return toast("Load your photos file first (⋯ → Load photos file) so existing photos aren't lost");
+  let added = 0;
+  for (const file of files) {
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name), isImg = file.type.startsWith("image/");
+    if (!isPdf && !isImg) { toast(`${file.name}: only photos and PDFs`); continue; }
+    let bytes, thumb = null, mime = file.type || (isPdf ? "application/pdf" : "image/jpeg"), name = file.name || "photo.jpg";
+    if (isImg) {
+      const r = await shrink(await readDataURL(file));
+      if (r) { bytes = r.bytes; thumb = r.thumb; mime = "image/jpeg"; name = name.replace(/\.(heic|heif|png|webp|gif|jpe?g)$/i, "") + ".jpg"; }
+      else if (file.size <= MAX_PDF) bytes = new Uint8Array(await file.arrayBuffer());
+      else { toast(`${file.name}: this photo format can't be shrunk here — try from the iPhone`); continue; }
+    } else {
+      if (file.size > MAX_PDF) { toast(`${file.name} is larger than 5 MB`); continue; }
+      bytes = new Uint8Array(await file.arrayBuffer());
+    }
+    const id = uid(); await putPhoto(id, name, mime, bytes, thumb);
+    draftFiles.push({id, name, mime, size:bytes.length}); added++;
+  }
+  drawFiles();
+  if (added) toast(`Added ${added} file${added>1?"s":""} — tap Done, then Save`);
+}
+function drawFiles(){
+  $("attBox").innerHTML = draftFiles.map((f,i) => {
+    const m = metaOf(f.id), img = f.mime.startsWith("image/");
+    const th = m && m.thumb ? `<img class="thumb" src="data:image/jpeg;base64,${m.thumb}" alt="">` : `<span class="thumb">${img ? "🖼" : "📄"}</span>`;
+    return `<div class="att" data-ai="${i}">${th}
+      <div style="flex:1;min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</div><div class="mut">${kb(f.size)}${m ? "" : " · photos file not loaded"}</div></div>
+      ${m ? (img ? `<button data-aact="view">View</button>` : "") + `<button data-aact="share">${img ? "Save" : "Open"}</button>` : `<button data-aact="load">Load</button>`}<button data-aact="del" class="danger edit-only">✕</button></div>`;
+  }).join("");
+  $("attWrap").classList.toggle("hidden", isRO() && !draftFiles.length);
+}
+async function shareAtt(id){ return quiet(async () => {
+  const m = metaOf(id), bytes = m && await getPhotoBytes(id); if (!bytes) return toast("Photo not available — load the photos file");
+  const file = new File([bytes], m.name, {type:m.mime});
+  if (navigator.canShare && navigator.canShare({files:[file]}) && isMobile) {
+    try { await navigator.share({files:[file]}); } catch(e){ if (e.name !== "AbortError") toast("Couldn't share"); }
+    return;
+  }
+  download(file); toast("Saved to Downloads — delete it when done");
+}); }
+let viewing = null;
+$("attBox").onclick = async e => {
+  const b = e.target.closest("button[data-aact]"); if (!b) return;
+  const i = +b.closest(".att").dataset.ai, f = draftFiles[i];
+  if (b.dataset.aact === "view") {
+    b.disabled = true; const bytes = await getPhotoBytes(f.id); b.disabled = false; if (!bytes) return toast("Photo not available");
+    viewing = f.id; $("viewName").textContent = f.name; $("viewImg").src = `data:${f.mime};base64,${b64(bytes)}`; openModal("viewer");
+  }
+  else if (b.dataset.aact === "share") shareAtt(f.id);
+  else if (b.dataset.aact === "load") pickFile();
+  else if (b.dataset.aact === "del" && !isRO()) { if (ask(`Remove “${f.name}” from this entry?`)) { draftFiles.splice(i,1); drawFiles(); } }
+};
+$("attAdd").onclick = () => quiet(async () => $("attIn").click());
+$("attIn").onchange = async e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) await addFiles(fs); };
+$("closeView").onclick = () => { closeModal("viewer"); $("viewImg").removeAttribute("src"); viewing = null; };
+$("viewShare").onclick = () => { if (viewing) shareAtt(viewing); };
+
+/* ===================== RICH NOTES (bold, italic, lists…) =====================
+   Stored as cleaned-up HTML (notesHtml) plus plain text (notes) for search. Only simple tags are kept. */
+const KEEP = {B:"b", STRONG:"b", I:"i", EM:"i", U:"u", UL:"ul", OL:"ol", LI:"li", BR:"br", DIV:"div", P:"div", H3:"h3", H1:"h3", H2:"h3"};
+function cleanHTML(html){
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html"), out = document.createElement("div");
+  (function walk(src, dst){
+    for (const n of [...src.childNodes]) {
+      if (n.nodeType === 3) dst.appendChild(document.createTextNode(n.nodeValue));
+      else if (n.nodeType === 1) {
+        if (/^(SCRIPT|STYLE|TEMPLATE|IFRAME|OBJECT|SVG|MATH)$/i.test(n.tagName)) continue;
+        const t = KEEP[n.tagName];
+        if (t) { const el = document.createElement(t); dst.appendChild(el); walk(n, el); } else walk(n, dst);
+      }
+    }
+  })(doc.body.firstChild, out);
+  return out.innerHTML;
+}
+const textToHTML = t => esc(t || "").replace(/\n/g, "<br>");
+function setNotes(e){ $("fNotes").innerHTML = e.notesHtml ? cleanHTML(e.notesHtml) : textToHTML(e.notes); }
+function getNotes(){
+  const html = cleanHTML($("fNotes").innerHTML), text = $("fNotes").innerText.replace(/\u00a0/g, " ").trim();
+  return {notes:text, notesHtml: text ? html : ""};
+}
+$("noteBar").addEventListener("pointerdown", e => { if (e.target.closest("button")) e.preventDefault(); });   // keep the cursor in the note
+$("noteBar").addEventListener("click", e => {
+  const b = e.target.closest("button[data-cmd]"); if (!b || isRO()) return;
+  const n = $("fNotes"); if (document.activeElement !== n) n.focus();
+  const c = b.dataset.cmd;
+  if (c === "heading") document.execCommand("formatBlock", false, document.queryCommandValue("formatBlock").toLowerCase() === "h3" ? "div" : "h3");
+  else if (c === "check") document.execCommand("insertText", false, "☐ ");
+  else if (c === "removeFormat") { document.execCommand("removeFormat"); document.execCommand("formatBlock", false, "div"); }
+  else document.execCommand(c);
+});
+$("fNotes").addEventListener("paste", e => { e.preventDefault(); document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain")); });
+$("fNotes").addEventListener("click", e => {          // tap ☐ / ☑ to tick it (in Edit mode)
+  if (isRO()) return;
+  const sel = getSelection(); if (!sel.rangeCount) return;
+  const r = sel.getRangeAt(0), node = r.startContainer; if (node.nodeType !== 3) return;
+  const t = node.nodeValue, i = r.startOffset, k = [i-1, i].find(j => t[j] === "☐" || t[j] === "☑");
+  if (k === undefined) return;
+  node.nodeValue = t.slice(0,k) + (t[k] === "☐" ? "☑" : "☐") + t.slice(k+1);
+});
+
 /* ===================== ENTRY DIALOG ===================== */
 function openModal(id){ $(id).classList.add("open"); }
 function closeModal(id){ $(id).classList.remove("open"); }
@@ -725,17 +1154,21 @@ function drawType(type, e){
   const T = TYPES[type] || TYPES.login;
   $("typeFields").innerHTML = T.fields.map(f => fieldHTML(f, e[f[0]])).join("");
   $("notesLabel").textContent = type === "note" ? "Note" : "Notes";
-  $("fNotes").rows = type === "note" ? 10 : 3;
+  $("fNotes").classList.toggle("big", type === "note");
   $("typeFields").querySelectorAll("[data-bar]").forEach(b => bar(b, $("typeFields").querySelector(`[data-k="${b.dataset.bar}"]`).value));
   if (type === "custom" && !draftCustom.length) { draftCustom = [{label:"",value:"",secret:false}]; drawCustom(); }
   applyFieldMode();
 }
 function openEdit(id){
-  editingId = id; const e = id ? S.data.entries.find(x=>x.id===id) : {type:"login"};
+  editingId = id;
+  const e = id ? S.data.entries.find(x=>x.id===id)
+               : {type:"login", profile: curProfile === "*" ? S.data.profiles[0].id : curProfile, folder: curFolder};
   const type = e.type || "login";
   $("fType").value = type;
-  $("fTitle").value = e.title || ""; $("fNotes").value = e.notes || ""; $("fFav").checked = !!e.fav;
+  $("fTitle").value = e.title || ""; setNotes(e); $("fFav").checked = !!e.fav;
   fillCats(e.category || "");
+  fillProfiles(e.profile); fillFolders(e.profile, e.folder);
+  draftFiles = (e.files || []).map(f => ({...f})); drawFiles();
   draftCustom = (e.custom || []).map(c => ({...c})); drawCustom();
   drawType(type, e);
   $("delBtn").classList.toggle("hidden", !id);
@@ -755,6 +1188,9 @@ function applyFieldMode(){
   const ro = isRO();
   $("edit").querySelectorAll("input:not([type=checkbox]), textarea").forEach(el => { if (!el.hasAttribute("data-glen")) el.readOnly = ro; });
   $("fCatSel").disabled = ro; $("fType").disabled = ro; $("typeWrap").classList.toggle("hidden", ro);
+  $("fProf").disabled = $("fFolder").disabled = ro;
+  $("fNotes").contentEditable = ro ? "false" : "true";
+  $("attWrap").classList.toggle("hidden", ro && !draftFiles.length);
   $("editTitle").textContent = ro ? "Details" : (editingId ? "Edit entry" : "New entry");
   $("saveEntry").textContent = ro ? "Close" : "Done";
   $("customWrap").classList.toggle("hidden", ro && !$("customBox").children.length);
@@ -792,8 +1228,9 @@ $("closeEdit").onclick = () => closeModal("edit");
 $("saveEntry").onclick = () => {
   if (isRO()) return closeModal("edit");
   const type = $("fType").value, T = TYPES[type];
-  const v = {type, title:$("fTitle").value.trim(), category:catValue(), notes:$("fNotes").value.trim(), fav:$("fFav").checked,
-             custom: readCustom().filter(c => c.label || c.value)};
+  const v = {type, title:$("fTitle").value.trim(), category:catValue(), ...getNotes(), fav:$("fFav").checked,
+             custom: readCustom().filter(c => c.label || c.value),
+             profile: $("fProf").value, folder: $("fFolder").value || null, files: draftFiles.map(f => ({...f}))};
   if ($("fCatSel").value === NEW_CAT && !v.category) return toast("Type the new category name");
   T.fields.forEach(([k,,secret,kind]) => { const el = $("typeFields").querySelector(`[data-k="${k}"]`); v[k] = secret || kind==="multi" ? el.value : el.value.trim(); });
   if (!v.title) v.title = v[T.fields[0] && T.fields[0][0]] || "";
@@ -841,16 +1278,47 @@ function menuInfo(){
     : n ? "Face ID / Touch ID is on. Your master password always works too." : "";
   $("leaveInfo").textContent = isMobile ? "1 minute" : "5 minutes";
   $("restoreBtn").classList.toggle("hidden", !S.prev);
-  $("vaultInfo").textContent = `File: ${fileLabel} · ${S.data.entries.length} entries · AES-256-GCM · PBKDF2 ${S.iter.toLocaleString()}`;
+  $("profList").innerHTML = S.data.profiles.map(p => `<div class="row" data-pid="${p.id}"><input data-pname value="${esc(p.name)}" class="grow">
+    <span class="mut">${S.data.entries.filter(e=>e.profile===p.id).length}</span><button data-pdel class="danger">🗑</button></div>`).join("");
+  const n2 = Object.keys(S.ph.index).length + Object.keys(S.ph.added).filter(id => !S.ph.index[id]).length, refs = refsOf(S.data).length;
+  $("photoMenuInfo").textContent = S.ph.err ? S.ph.err
+    : phFile && S.ph.ok ? `${phFile.name} · ${n2} photo${n2===1?"":"s"}/PDF${n2===1?"":"s"} · ${kb(phFile.blob ? phFile.blob.size : attBytes())}`
+    : refs ? `Not loaded — ${refs} photo${refs===1?"":"s"} can't be shown until you load passwords.photos` : Object.keys(S.ph.added).length ? "New photos — created when you Save" : "No photos yet";
+  $("setTheme").value = (() => { try { return localStorage.getItem("pwvault.theme") || "auto"; } catch { return "auto"; } })();
+  $("vaultInfo").textContent = `File: ${fileLabel} · ${kb((fileText||"").length)} · ${S.data.entries.length} entries · AES-256-GCM · PBKDF2 ${S.iter.toLocaleString()}`;
 }
 $("menuBtn").onclick = () => { menuInfo(); openModal("menu"); };
+$("photoLoad").onclick = () => pickFile();
+$("setTheme").onchange = () => {
+  const t = $("setTheme").value;
+  try { if (t === "auto") localStorage.removeItem("pwvault.theme"); else localStorage.setItem("pwvault.theme", t); } catch {}
+  if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+};
+$("profList").addEventListener("change", e => {
+  if (!e.target.hasAttribute("data-pname")) return;
+  const p = S.data.profiles.find(x => x.id === e.target.closest("[data-pid]").dataset.pid), n = e.target.value.trim();
+  if (p && n) { p.name = n; setDirty(true); render(); }
+});
+$("profList").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-pdel")) return;
+  const id = e.target.closest("[data-pid]").dataset.pid, p = S.data.profiles.find(x => x.id === id);
+  if (S.data.profiles.length < 2) return toast("You need at least one profile");
+  const n = S.data.entries.filter(x => x.profile === id).length;
+  if (n) return toast(`“${p.name}” still has ${n} entr${n===1?"y":"ies"} — move or delete them first`);
+  if (!ask(`Delete profile “${p.name}” and its folders?`)) return;
+  S.data.profiles = S.data.profiles.filter(x => x.id !== id); S.data.folders = S.data.folders.filter(f => f.profile !== id);
+  if (curProfile === id) { curProfile = S.data.profiles[0].id; curFolder = null; }
+  setDirty(true); menuInfo(); render();
+});
+$("profAdd").onclick = () => { const p = addProfile(); if (p) { curProfile = p.id; curFolder = null; menuInfo(); render(); } };
 $("closeMenu").onclick = () => closeModal("menu");
 $("setLock").onchange = () => { S.data.settings.lockMin = +$("setLock").value; setDirty(true); armIdle(); toast("Saved with the vault — tap Save"); };
 $("setClip").onchange = () => { S.data.settings.clipSec = +$("setClip").value; setDirty(true); toast("Saved with the vault — tap Save"); };
 $("restoreBtn").onclick = async () => {
   if (!S.prev || !ask("Replace what you see now with the version from the save before the last one?")) return;
-  try { S.data = JSON.parse(dec.decode(await aesDec(S.dataKey, S.prev))); S.data.entries ||= []; S.data.settings ||= {}; S.data.entries.forEach(e => e.type ||= "login"); }
+  try { S.data = migrate(JSON.parse(dec.decode(await aesDec(S.dataKey, S.prev)))); }
   catch { return toast("Couldn't read the previous save"); }
+  if (!S.data.profiles.some(p=>p.id===curProfile)) curProfile = S.data.profiles[0].id; curFolder = null;
   closeModal("menu"); setDirty(true); render(); toast("Previous save restored — tap Save to keep it");
 };
 $("importBtn").onclick = () => quiet(async () => $("csvIn").click());
@@ -875,7 +1343,7 @@ $("csvIn").onchange = async e => {
   if (m.password < 0) return toast("Couldn't find a Password column");
   let n = 0; const now = Date.now();
   rows.slice(1).forEach(r => { const g = k => m[k]>=0 ? (r[m[k]]||"").trim() : "";
-    const x = {id:uid(), type:"login", title:g("title")||host(g("url"))||g("username"), username:g("username"), password:r[m.password]||"", url:g("url"), category:g("category"), notes:g("notes"), updated:now, pwChanged:now};
+    const x = {id:uid(), type:"login", profile: curProfile === "*" ? S.data.profiles[0].id : curProfile, folder: curFolder, title:g("title")||host(g("url"))||g("username"), username:g("username"), password:r[m.password]||"", url:g("url"), category:g("category"), notes:g("notes"), updated:now, pwChanged:now};
     if (x.title||x.username||x.password){ S.data.entries.push(x); n++; } });
   closeModal("menu"); setDirty(true); render();
   toast(`Imported ${n} entries — now Save, then delete the CSV`);
@@ -889,7 +1357,7 @@ $("chgPwBtn").onclick = async () => {
 };
 
 document.addEventListener("keydown", e => {
-  if (e.key==="Escape"){ closeModal("edit"); closeModal("menu"); }
+  if (e.key==="Escape"){ if ($("viewer").classList.contains("open")) return $("closeView").click(); closeModal("edit"); closeModal("menu"); }
   if (!S) return;
   if ((e.metaKey||e.ctrlKey) && e.key==="s"){ e.preventDefault(); if (!isRO()) saveVault(); }
   if ((e.metaKey||e.ctrlKey) && e.key==="l"){ e.preventDefault(); lock("manual"); }
