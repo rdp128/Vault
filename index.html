@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Password Vault</title>
 <style>
-  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e7e9ee;--mut:#8b93a5;--acc:#4f8cff;--bad:#ff5d5d;--ok:#3ecf8e}
+  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e7e9ee;--mut:#8b93a5;--acc:#4f8cff;--bad:#ff5d5d;--ok:#3ecf8e;--warn:#ffb547}
   *{box-sizing:border-box}
   body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
   button,input,select,textarea{font:inherit;color:inherit}
@@ -18,6 +18,7 @@
   button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
   button.danger{color:var(--bad)}
   button:disabled{opacity:.5}
+  a.link{color:var(--acc);cursor:pointer;font-size:13px;text-decoration:none}
   .wrap{max-width:900px;margin:0 auto;padding:16px}
   .center{min-height:90vh;display:flex;align-items:center;justify-content:center}
   .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:420px}
@@ -25,43 +26,51 @@
   .mut{color:var(--mut);font-size:13px}
   .stack>*+*{margin-top:12px}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .row>.grow{flex:1;min-width:160px}
+  .row>.grow{flex:1;min-width:140px}
   header.bar{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
   .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0}
   .chip{white-space:nowrap;padding:5px 12px;border-radius:999px;font-size:13px}
   .chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   .list{display:grid;gap:8px;margin-top:8px}
   .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center}
+  .item.age1{background:rgba(255,214,0,.09);border-color:rgba(255,214,0,.35)}
+  .item.age2{background:rgba(255,80,80,.10);border-color:rgba(255,80,80,.45)}
+  .tag{font-size:11px;padding:1px 7px;border-radius:999px;margin-left:6px;font-weight:500}
+  .tag.y{background:rgba(255,214,0,.2);color:#ffd84d}.tag.r{background:rgba(255,80,80,.2);color:#ff8080}
+  .star{background:none;border:0;padding:4px;font-size:18px;color:var(--mut)}
+  .star.on{color:#ffd84d}
   .av{width:36px;height:36px;border-radius:9px;background:#26304a;display:flex;align-items:center;justify-content:center;font-weight:600;flex:none}
-  .item .meta{flex:1;min-width:0}
+  .item .meta{flex:1;min-width:0;cursor:pointer}
   .item .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .item .u{color:var(--mut);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .item button{padding:7px 10px;font-size:13px}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+  .item button:not(.star){padding:7px 10px;font-size:13px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
   .stat b{font-size:20px;display:block}
-  .warn{color:#ffb547}
+  .warn{color:var(--warn)} .badc{color:var(--bad)}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}
   .modal.open{display:flex}
   .sheet{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:18px}
   @media(min-width:700px){.modal{align-items:center}.sheet{border-radius:16px}}
   label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
   .pw{display:flex;gap:6px}.pw input{flex:1;font-family:ui-monospace,Menlo,monospace}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222838;border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:30}
+  .hist{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222838;border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:30;max-width:90vw}
   .strength{height:5px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}.strength i{display:block;height:100%}
-  .dirty{color:#ffb547;font-size:13px}
+  .dirty{color:var(--warn);font-size:13px}
   .hidden{display:none!important}
-  /* Privacy: blur all vault content */
-  body.priv #list, body.priv #stats, body.priv #chips,
-  body.priv #edit .sheet input, body.priv #edit .sheet textarea, body.priv #fUpdated, body.priv #vaultInfo
-    {filter:blur(7px);transition:filter .15s}
+  .ver{font-size:11px;color:var(--mut);text-align:center}
+  /* Privacy blur */
   #list,#stats,#chips{transition:filter .15s}
-  /* Read-only mode: hide everything that changes the vault */
+  body.priv #list, body.priv #stats, body.priv #chips, body.priv #edit .sheet input, body.priv #edit .sheet textarea,
+  body.priv #fUpdated, body.priv #histBox, body.priv #vaultInfo {filter:blur(7px)}
+  /* Read-only mode */
   body.ro .edit-only{display:none!important}
-  body:not(.ro) .ro-note{display:none}
+  body:not(.ro) .ro-only{display:none!important}
   button.toggle.on{background:var(--acc);border-color:var(--acc);color:#fff}
   #modeTag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
-  body:not(.ro) #modeTag{color:#ffb547;border-color:#ffb547}
+  body:not(.ro) #modeTag{color:var(--warn);border-color:var(--warn)}
+  #lockTimer{font-size:12px;color:var(--mut)}
 </style>
 </head>
 <body class="ro">
@@ -69,15 +78,21 @@
 <!-- LOCK SCREEN -->
 <div id="lock" class="center wrap">
   <div class="box stack">
-    <div><h1>🔐 Password Vault</h1><div class="mut">Everything is decrypted only in this browser tab. Nothing is sent anywhere.</div></div>
-    <button id="pickBtn">Open vault file…</button>
-    <input id="fileIn" type="file" class="hidden">
-    <div id="fileName" class="mut"></div>
+    <div><h1>🔐 Password Vault</h1><div class="mut">Decrypted only on this device. Nothing is sent anywhere.</div></div>
+    <div id="noFile" class="stack">
+      <button id="pickBtn">Open vault file…</button>
+      <input id="fileIn" type="file" class="hidden">
+    </div>
+    <div id="haveFile" class="hidden">
+      <div class="row" style="justify-content:space-between"><span id="fileName"></span><a class="link" id="otherFile">Use a different file</a></div>
+    </div>
+    <button id="faceBtn" class="pri hidden">Unlock with Face ID / Touch ID</button>
     <input id="master" type="password" placeholder="Master password" autocomplete="current-password">
     <button id="unlockBtn" class="pri" disabled>Unlock</button>
-    <div id="lockErr" class="mut" style="color:var(--bad)"></div>
+    <div id="lockMsg" class="mut"></div>
     <hr style="border:0;border-top:1px solid var(--line)">
     <button id="newBtn">Create new vault</button>
+    <div class="ver" id="verLock"></div>
   </div>
 </div>
 
@@ -110,23 +125,26 @@
       <button id="addBtn" class="pri edit-only">+ Add</button>
       <button id="saveBtn" class="edit-only">Save</button>
     </div>
-    <div class="row" style="justify-content:space-between"><div class="chips" id="chips"></div><span id="dirty" class="dirty"></span></div>
+    <div class="row" style="justify-content:space-between"><div class="chips" id="chips"></div><span><span id="dirty" class="dirty"></span> <span id="lockTimer"></span></span></div>
   </header>
   <div class="stats" id="stats"></div>
   <div class="list" id="list"></div>
 </div>
 
-<!-- EDIT MODAL -->
+<!-- ENTRY MODAL -->
 <div id="edit" class="modal"><div class="sheet stack">
   <div class="row" style="justify-content:space-between"><h2 id="editTitle" style="margin:0">Entry</h2><button id="closeEdit">✕</button></div>
   <div><label>Title</label><input id="fTitle"></div>
-  <div><label>Category</label><input id="fCat" list="catList" placeholder="e.g. Banking, Email, Work"><datalist id="catList"></datalist></div>
+  <div><label>Category</label><select id="fCatSel"></select>
+    <input id="fCat" class="hidden" placeholder="Type a new category" style="margin-top:6px"></div>
   <div><label>Username / email</label><div class="pw"><input id="fUser" autocomplete="off"><button data-copy="fUser">Copy</button></div></div>
   <div><label>Password</label><div class="pw"><input id="fPass" type="password" autocomplete="off"><button id="togglePw">Show</button><button data-copy="fPass">Copy</button></div>
     <div class="strength"><i id="fBar"></i></div></div>
   <div class="row edit-only"><label style="margin:0">Generate:</label><input id="gLen" type="number" min="8" max="64" value="20" style="width:70px"><label style="margin:0"><input id="gSym" type="checkbox" checked style="width:auto"> symbols</label><button id="genBtn">Generate</button></div>
-  <div><label>Website</label><input id="fUrl" placeholder="https://"></div>
+  <div><label>Website</label><div class="pw"><input id="fUrl" placeholder="example.com"><button id="openUrl">Open</button></div></div>
   <div><label>Notes</label><textarea id="fNotes"></textarea></div>
+  <div class="edit-only"><label style="display:flex;gap:8px;align-items:center;margin:0"><input id="fFav" type="checkbox" style="width:auto"> ⭐ Favourite</label></div>
+  <div id="histWrap" class="hidden"><label>Previous passwords</label><div id="histBox"></div></div>
   <div id="fUpdated" class="mut"></div>
   <div class="row"><button id="delBtn" class="danger edit-only">Delete</button><span class="grow"></span><button id="saveEntry" class="pri">Done</button></div>
 </div></div>
@@ -134,88 +152,194 @@
 <!-- MENU MODAL -->
 <div id="menu" class="modal"><div class="sheet stack">
   <div class="row" style="justify-content:space-between"><h2 style="margin:0">Vault</h2><button id="closeMenu">✕</button></div>
-  <div class="mut ro-note">Turn on ✎ Edit to import or change the master password.</div>
-  <button id="importBtn" class="edit-only">Import CSV (from your Excel)</button>
-  <input id="csvIn" type="file" accept=".csv,text/csv" class="hidden">
-  <div class="mut edit-only">In Excel: File → Save As → CSV. Columns detected automatically: Title/Site, Username/Email, Password, URL, Category, Notes. <b class="warn">Securely delete the CSV after importing.</b></div>
-  <button id="chgPwBtn" class="edit-only">Change master password</button>
+  <div class="mut ro-only">Turn on ✎ Edit to change settings, import, Face ID or the master password.</div>
+  <div class="row">
+    <div class="grow"><label>Auto-lock when inactive</label><select id="setLock"><option value="1">1 minute</option><option value="3">3 minutes</option><option value="5">5 minutes</option><option value="15">15 minutes</option></select></div>
+    <div class="grow"><label>Clear copied password after</label><select id="setClip"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></div>
+  </div>
+  <div class="edit-only stack">
+    <button id="faceAdd">Turn on Face ID / Touch ID</button>
+    <button id="faceDel" class="danger">Turn off Face ID / Touch ID</button>
+    <div id="faceNote" class="mut"></div>
+    <button id="restoreBtn">Restore previous save</button>
+    <button id="importBtn">Import CSV (from your Excel)</button>
+    <input id="csvIn" type="file" accept=".csv,text/csv" class="hidden">
+    <div class="mut">In Excel: File → Save As → CSV. <b class="warn">Securely delete the CSV after importing.</b></div>
+    <button id="chgPwBtn">Change master password</button>
+  </div>
+  <div class="mut">When you leave the page it blurs at once and locks after <b id="leaveInfo"></b> away.</div>
+  <div class="mut">Password age warnings — Email &amp; Social: yellow 2.5 yr, red 3 yr · Banking &amp; Financial: yellow 2 yr, red 2.5 yr · Everything else: yellow 4.5 yr, red 5 yr.</div>
   <div class="mut" id="vaultInfo"></div>
+  <div class="ver" id="verMenu"></div>
 </div></div>
 
 <div id="toast" class="toast"></div>
 
 <script>
 "use strict";
+const VERSION = "2.1";
 /* ===================== CRYPTO =====================
-   Vault file = JSON { app, v, kdf, iter, salt, iv, ct }
-   Key: PBKDF2-SHA256 (600k iterations) -> AES-256-GCM (authenticated)
-   Key is non-extractable and only lives in memory while unlocked. */
+   File v2 = { app, v:2, kdf, iter, salt, wp, ps, wk[], data, prev, savedAt }
+   - A random 256-bit vault key encrypts the data (AES-256-GCM).
+   - wp: vault key wrapped by your master password (PBKDF2-SHA256, 600k).
+   - wk: vault key wrapped by a passkey (Face ID / Touch ID, WebAuthn PRF).
+   - prev: the previous save, encrypted the same way (one-step undo).
+   v1 files (older format) still open and are upgraded on the next save. */
 const ITER = 600000;
 const enc = new TextEncoder(), dec = new TextDecoder();
-const b64 = u8 => btoa(String.fromCharCode(...u8));
+const b64 = u8 => { let s=""; u8 = new Uint8Array(u8); for (let i=0;i<u8.length;i+=0x8000) s += String.fromCharCode(...u8.subarray(i,i+0x8000)); return btoa(s); };
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const b64url = u8 => b64(u8).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const unb64url = s => unb64(s.replace(/-/g,"+").replace(/_/g,"/") + "===".slice((s.length+3)%4));
 const rand = n => crypto.getRandomValues(new Uint8Array(n));
 
-async function deriveKey(pw, salt, iter){
+async function pwKey(pw, salt, iter){
   const base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"},
-    base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
 }
-async function seal(key, salt, iter, obj){
-  const iv = rand(12);
-  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, enc.encode(JSON.stringify(obj))));
-  return JSON.stringify({app:"pwvault", v:1, kdf:"PBKDF2-SHA256", iter, salt:b64(salt), iv:b64(iv), ct:b64(ct)});
+const rawKey = raw => crypto.subtle.importKey("raw", raw, {name:"AES-GCM"}, false, ["encrypt","decrypt"]);
+async function prfKey(prfOut){
+  const base = await crypto.subtle.importKey("raw", prfOut, "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"HKDF", hash:"SHA-256", salt:enc.encode("pwvault-passkey"), info:enc.encode("wrap")}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
 }
-async function open(fileText, pw){
-  const f = JSON.parse(fileText);
-  if (f.app !== "pwvault") throw new Error("Not a vault file");
-  const salt = unb64(f.salt), key = await deriveKey(pw, salt, f.iter);
-  let pt;
-  try { pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(f.iv)}, key, unb64(f.ct)); }
-  catch { throw new Error("Wrong password or file was modified"); }
-  return {key, salt, iter:f.iter, data:JSON.parse(dec.decode(pt))};
-}
+async function aesEnc(key, bytes){ const iv = rand(12); return {iv:b64(iv), ct:b64(await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, bytes))}; }
+async function aesDec(key, o){ return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(o.iv)}, key, unb64(o.ct))); }
 
 /* ===================== STATE ===================== */
 const $ = id => document.getElementById(id);
-let S = null;            // {key, salt, iter, data:{entries:[]}}
+let S = null;            // unlocked state: {vk, dataKey, salt, iter, wp, ps, wk, prev, data, snapshot}
 let fileText = null, fileHandle = null, fileLabel = "passwords.vault";
-let dirty = false, editingId = null, cat = "All", clipTimer = null, idleTimer = null;
-const IDLE_MS = 5 * 60 * 1000;   // auto-lock after 5 min of inactivity
-const CLIP_MS = 30 * 1000;       // clear clipboard after 30 s
+let pending = null;      // unsaved edits kept encrypted while locked
+let dirty = false, editingId = null, cat = "All", clipTimer = null, idleTimer = null, idleAt = 0, manualPriv = false;
+const DAY = 86400000;
+const settings = () => Object.assign({lockMin:3, clipSec:30}, S && S.data.settings);
 
-function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",2200); }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",2600); }
 function show(id){ ["lock","create","main"].forEach(x=>$(x).classList.toggle("hidden", x!==id)); }
-function setDirty(v){ dirty=v; $("dirty").textContent = v ? "● Unsaved changes" : ""; }
+function setDirty(v){ dirty=v; $("dirty").textContent = v ? "● Unsaved" : ""; }
 const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const uid = () => b64(rand(9)).replace(/[+/=]/g,"");
+const uid = () => b64url(rand(9));
+$("verLock").textContent = $("verMenu").textContent = "Version " + VERSION;
 
-/* ===================== OPEN / UNLOCK ===================== */
-$("pickBtn").onclick = async () => {
-  if (window.showOpenFilePicker) {            // Chrome/Edge on desktop: can save back in place
-    try {
-      [fileHandle] = await showOpenFilePicker({multiple:false});
-      const f = await fileHandle.getFile(); fileText = await f.text(); fileLabel = f.name;
-      $("fileName").textContent = "📄 " + f.name; $("unlockBtn").disabled = false; $("master").focus();
-    } catch(e) {}
-  } else $("fileIn").click();                  // Safari / iPhone: Files app picker (iCloud, Cryptomator)
-};
-$("fileIn").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  fileText = await f.text(); fileLabel = f.name; fileHandle = null;
-  $("fileName").textContent = "📄 " + f.name; $("unlockBtn").disabled = false; $("master").focus();
-};
+/* Own dialogs (file picker, share sheet, Face ID, confirm) must not count as "leaving". */
+let quietN = 0;
+async function quiet(fn){
+  quietN++; let done = false;
+  const release = () => { if (!done) { done = true; setTimeout(()=>quietN--, 800); } };
+  const safety = setTimeout(release, 120000);   // never leave lock-on-leave switched off for more than 2 min
+  try { return await fn(); } finally { clearTimeout(safety); release(); }
+}
+function ask(msg){ quietN++; try { return confirm(msg); } finally { setTimeout(()=>quietN--, 800); } }
+function askText(msg){ quietN++; try { return prompt(msg); } finally { setTimeout(()=>quietN--, 800); } }
+
+/* ===================== LOCK SCREEN ===================== */
+const faceSupported = () => (location.protocol === "https:" || location.hostname === "localhost") && !!window.PublicKeyCredential;
+function refreshLockScreen(){
+  const has = !!fileText;
+  $("noFile").classList.toggle("hidden", has);
+  $("haveFile").classList.toggle("hidden", !has);
+  $("fileName").textContent = has ? "📄 " + fileLabel : "";
+  $("unlockBtn").disabled = !has;
+  let wk = false; try { const f = JSON.parse(fileText); wk = f.v===2 && f.wk && f.wk.length; } catch {}
+  $("faceBtn").classList.toggle("hidden", !(has && wk && faceSupported()));
+}
+async function loadFile(text, name, handle){
+  try { if (JSON.parse(text).app !== "pwvault") throw 0; } catch { $("lockMsg").textContent = "That is not a vault file."; return; }
+  if (pending && fileText !== text) pending = null;
+  fileText = text; fileLabel = name; fileHandle = handle || null; $("lockMsg").textContent = "";
+  refreshLockScreen(); $("master").focus();
+}
+$("pickBtn").onclick = () => quiet(async () => {
+  if (window.showOpenFilePicker) {            // Chrome/Edge desktop: can save back in place
+    try { const [h] = await showOpenFilePicker({multiple:false}); const f = await h.getFile(); await loadFile(await f.text(), f.name, h); } catch {}
+  } else $("fileIn").click();                  // Safari / iPhone: Files picker (iCloud, Cryptomator)
+});
+$("fileIn").onchange = async e => { const f = e.target.files[0]; if (f) await loadFile(await f.text(), f.name, null); e.target.value=""; };
+$("otherFile").onclick = () => { fileText = null; fileHandle = null; pending = null; refreshLockScreen(); };
+
+async function openWithPassword(pw){
+  const f = JSON.parse(fileText);
+  const salt = unb64(f.salt), k = await pwKey(pw, salt, f.iter);
+  if (!f.v || f.v === 1) {                     // older format: data encrypted directly by the password key
+    let pt; try { pt = await aesDec(k, f); } catch { throw new Error("Wrong password"); }
+    const vk = rand(32);
+    return {vk, dataKey: await rawKey(vk), salt, iter:f.iter, wp: await aesEnc(k, vk), ps:null, wk:[], prev:null, data: JSON.parse(dec.decode(pt))};
+  }
+  let vk; try { vk = await aesDec(k, f.wp); } catch { throw new Error("Wrong password"); }
+  return finishOpen(f, vk);
+}
+async function finishOpen(f, vk){
+  const dataKey = await rawKey(vk);
+  let pt; try { pt = await aesDec(dataKey, f.data); } catch { throw new Error("File is damaged or was modified"); }
+  return {vk, dataKey, salt:unb64(f.salt), iter:f.iter, wp:f.wp, ps:f.ps||null, wk:f.wk||[], prev:f.prev||null, data: JSON.parse(dec.decode(pt))};
+}
+async function afterUnlock(st){
+  S = st; S.data.entries ||= []; S.data.settings ||= {};
+  S.snapshot = JSON.stringify(S.data);
+  setDirty(false);
+  if (pending) {
+    try { S.data = JSON.parse(dec.decode(await aesDec(S.dataKey, pending))); S.data.entries ||= []; setDirty(true); toast("Your unsaved changes were restored"); }
+    catch {}
+    pending = null;
+  }
+  $("master").value = ""; $("lockMsg").textContent = "";
+  manualPriv = false; setPrivacy(false); setEditMode(false, true);
+  idleAt = 0; leftAt = 0; show("main"); render(); armIdle();
+}
 async function unlock(){
-  $("lockErr").textContent = ""; $("unlockBtn").disabled = true; $("unlockBtn").textContent = "Unlocking…";
-  try {
-    S = await open(fileText, $("master").value);
-    S.data.entries ||= [];
-    $("master").value = ""; setDirty(false); show("main"); render(); armIdle();
-  } catch(e){ $("lockErr").textContent = e.message; }
+  if (!fileText) return;
+  $("lockMsg").textContent = ""; $("unlockBtn").disabled = true; $("unlockBtn").textContent = "Unlocking…";
+  try { await afterUnlock(await openWithPassword($("master").value)); }
+  catch(e){ $("lockMsg").textContent = e.message; }
   $("unlockBtn").disabled = false; $("unlockBtn").textContent = "Unlock";
 }
 $("unlockBtn").onclick = unlock;
-$("master").onkeydown = e => { if (e.key==="Enter" && fileText) unlock(); };
+$("master").onkeydown = e => { if (e.key==="Enter") unlock(); };
+
+/* ===================== FACE ID / TOUCH ID (passkey + PRF) ===================== */
+$("faceBtn").onclick = () => quiet(async () => {
+  try {
+    const f = JSON.parse(fileText);
+    const a = await navigator.credentials.get({publicKey:{
+      challenge: rand(32), userVerification:"required",
+      allowCredentials: f.wk.map(w => ({type:"public-key", id:unb64url(w.id)})),
+      extensions:{prf:{eval:{first:unb64(f.ps)}}}}});
+    const out = a.getClientExtensionResults().prf?.results?.first;
+    if (!out) throw new Error("This device did not return a key. Use your master password.");
+    const w = f.wk.find(x => x.id === b64url(new Uint8Array(a.rawId)));
+    if (!w) throw new Error("Unknown passkey. Use your master password.");
+    let vk; try { vk = await aesDec(await prfKey(new Uint8Array(out)), w); } catch { throw new Error("Face ID key didn't match. Use your master password."); }
+    await afterUnlock(await finishOpen(f, vk));
+  } catch(e){ if (e.name !== "NotAllowedError") $("lockMsg").textContent = e.message; }
+});
+$("faceAdd").onclick = () => quiet(async () => {
+  if (!faceSupported()) return toast("Face ID only works on the https:// page, not the local file");
+  try {
+    const ps = S.ps ? unb64(S.ps) : rand(32);
+    const cred = await navigator.credentials.create({publicKey:{
+      rp:{name:"Password Vault"}, user:{id:rand(16), name:"Password Vault", displayName:"Password Vault"},
+      challenge: rand(32), pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+      authenticatorSelection:{residentKey:"required", requireResidentKey:true, userVerification:"required"},
+      extensions:{prf:{eval:{first:ps}}}}});
+    const ext = cred.getClientExtensionResults();
+    if (!ext.prf || ext.prf.enabled === false) throw new Error("This device or browser doesn't support Face ID unlock for web pages.");
+    let out = ext.prf.results?.first;
+    if (!out) {
+      const a = await navigator.credentials.get({publicKey:{challenge:rand(32), userVerification:"required",
+        allowCredentials:[{type:"public-key", id:cred.rawId}], extensions:{prf:{eval:{first:ps}}}}});
+      out = a.getClientExtensionResults().prf?.results?.first;
+    }
+    if (!out) throw new Error("Face ID setup didn't return a key on this device.");
+    const w = await aesEnc(await prfKey(new Uint8Array(out)), S.vk);
+    S.ps = b64(ps); S.wk.push({id:b64url(new Uint8Array(cred.rawId)), ...w, added:Date.now()});
+    setDirty(true); menuInfo(); toast("Face ID / Touch ID added — tap Save");
+  } catch(e){ if (e.name !== "NotAllowedError") toast(e.message); }
+});
+$("faceDel").onclick = () => {
+  if (!S.wk.length) return;
+  if (!ask("Turn off Face ID / Touch ID? You'll unlock with the master password only.")) return;
+  S.wk = []; S.ps = null; setDirty(true); menuInfo(); toast("Face ID removed — tap Save");
+};
 
 /* ===================== CREATE ===================== */
 $("newBtn").onclick = () => show("create");
@@ -225,147 +349,251 @@ $("doCreate").onclick = async () => {
   const a=$("np1").value, b=$("np2").value;
   if (a.length < 12) return $("createErr").textContent = "Use at least 12 characters.";
   if (a !== b) return $("createErr").textContent = "Passwords don't match.";
-  const salt = rand(16);
-  S = {key: await deriveKey(a, salt, ITER), salt, iter:ITER, data:{entries:[]}};
-  $("np1").value = $("np2").value = ""; fileHandle = null; fileLabel = "passwords.vault";
-  show("main"); render(); armIdle(); setDirty(true); setEdit(true);
+  const salt = rand(16), vk = rand(32);
+  const st = {vk, dataKey: await rawKey(vk), salt, iter:ITER, wp: await aesEnc(await pwKey(a, salt, ITER), vk), ps:null, wk:[], prev:null, data:{entries:[], settings:{}}};
+  $("np1").value = $("np2").value = ""; fileText = null; fileHandle = null; fileLabel = "passwords.vault"; pending = null;
+  await afterUnlock(st); setDirty(true); setEditMode(true);
   toast("Vault created. Tap Save and store it in iCloud Drive.");
 };
 
 /* ===================== SAVE =====================
-   Chrome/Edge desktop with handle: writes the same file in place.
-   iPhone/iPad: share sheet -> "Save to Files" -> pick your iCloud/Cryptomator folder -> Replace.
-   Otherwise: downloads the file. */
-async function saveVault(){
-  const out = await seal(S.key, S.salt, S.iter, S.data);
+   Chrome/Edge desktop with a file handle: overwrites the same file.
+   iPhone/iPad: share sheet -> Save to Files -> same folder -> Replace.
+   Otherwise: save dialog or download. */
+async function buildFile(){
+  const now = JSON.stringify(S.data);
+  if (S.snapshot && S.snapshot !== now) S.prev = await aesEnc(S.dataKey, enc.encode(S.snapshot));
+  const out = JSON.stringify({app:"pwvault", v:2, kdf:"PBKDF2-SHA256", iter:S.iter, salt:b64(S.salt), wp:S.wp,
+    ps:S.ps, wk:S.wk, data: await aesEnc(S.dataKey, enc.encode(now)), prev:S.prev, savedAt:new Date().toISOString()});
+  return {out, now};
+}
+function saved(out, now){ fileText = out; S.snapshot = now; setDirty(false); }
+async function saveVault(){ return quiet(async () => {
+  const {out, now} = await buildFile();
   if (fileHandle && fileHandle.createWritable) {
-    try { const w = await fileHandle.createWritable(); await w.write(out); await w.close(); setDirty(false); return toast("Saved ✓"); }
-    catch(e){ /* fall through */ }
+    try { const w = await fileHandle.createWritable(); await w.write(out); await w.close(); saved(out, now); return toast("Saved ✓"); } catch {}
   }
   const file = new File([out], fileLabel, {type:"application/octet-stream"});
   if (navigator.canShare && navigator.canShare({files:[file]}) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
-    try { await navigator.share({files:[file]}); setDirty(false); return toast("Choose Save to Files → replace the old vault"); }
+    try { await navigator.share({files:[file]}); saved(out, now); return toast("Choose Save to Files → replace the old vault"); }
     catch(e){ if (e.name==="AbortError") return; }
   }
   if (window.showSaveFilePicker) {
-    try { fileHandle = await showSaveFilePicker({suggestedName:fileLabel});
-          const w = await fileHandle.createWritable(); await w.write(out); await w.close(); setDirty(false); return toast("Saved ✓"); }
+    try { fileHandle = await showSaveFilePicker({suggestedName:fileLabel}); const w = await fileHandle.createWritable(); await w.write(out); await w.close(); saved(out, now); return toast("Saved ✓"); }
     catch(e){ if (e.name==="AbortError") return; }
   }
   const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = fileLabel; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 5000); setDirty(false);
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000); saved(out, now);
   toast("Downloaded — move it over the old vault file");
-}
+}); }
 $("saveBtn").onclick = saveVault;
 
 /* ===================== LOCK ===================== */
-function lock(reason){
-  if (dirty && reason !== "force" && !confirm("You have unsaved changes. Lock anyway and lose them?")) return;
-  S = null; fileText = null; fileHandle = null; editingId = null;
-  $("list").innerHTML = ""; $("q").value = ""; closeModal("edit"); closeModal("menu");
-  $("fileName").textContent = ""; $("unlockBtn").disabled = true; $("fileIn").value = "";
-  setDirty(false); show("lock");
-  document.body.classList.add("ro"); $("editBtn").classList.remove("on"); $("modeTag").textContent = "Read-only";
-  if (reason === "idle") $("lockErr").textContent = "Locked after inactivity.";
+async function lock(reason){
+  if (!S) return;
+  const st = S; S = null;                       // stop using the data immediately
+  clearTimeout(idleTimer); clearInterval(tick); clearTimeout(leaveTimer); leftAt = 0;
+  $("list").innerHTML = ""; $("stats").innerHTML = ""; $("chips").innerHTML = ""; $("q").value = "";
+  closeModal("edit"); closeModal("menu"); editingId = null;
+  show("lock"); refreshLockScreen();
+  const wasDirty = dirty; setDirty(false);
+  if (wasDirty) { try { pending = await aesEnc(st.dataKey, enc.encode(JSON.stringify(st.data))); } catch { pending = null; } }
+  st.vk.fill(0); st.data = null; st.dataKey = null;
+  document.body.classList.add("ro"); manualPriv = false; setPrivacy(false);
+  $("lockMsg").textContent = (reason === "idle" ? "Locked after inactivity." : reason === "leave" ? "Locked because you were away from the page." : "")
+    + (wasDirty ? " Unsaved changes are kept until you close this page." : "");
 }
-$("lockBtn").onclick = () => lock();
-function armIdle(){ clearTimeout(idleTimer); if (S) idleTimer = setTimeout(()=>{ if (dirty) saveVault().finally(()=>lock("force")); else lock("idle"); }, IDLE_MS); }
-["click","keydown","touchstart","scroll"].forEach(ev => addEventListener(ev, armIdle, {passive:true}));
-document.addEventListener("visibilitychange", () => { if (document.hidden && S && !dirty) setTimeout(()=>{ if (document.hidden && S && !dirty) lock("idle"); }, 60000); });
-addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+$("lockBtn").onclick = () => lock("manual");
 
-/* ===================== PRIVACY & READ-ONLY MODE ===================== */
+/* Auto-lock after inactivity */
+let tick = null;
+function armIdle(){
+  if (!S || leftAt) return;
+  if (idleAt && Date.now() > idleAt + 1000) return lock("idle");
+  clearTimeout(idleTimer); clearInterval(tick);
+  const ms = settings().lockMin * 60000; idleAt = Date.now() + ms;
+  idleTimer = setTimeout(() => lock("idle"), ms);
+  const draw = () => { const s = Math.max(0, Math.round((idleAt-Date.now())/1000)); $("lockTimer").textContent = "🔒 " + Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+  draw(); tick = setInterval(draw, 1000);
+}
+["click","keydown","touchstart","scroll","input"].forEach(ev => addEventListener(ev, armIdle, {passive:true}));
+
+/* Leaving the page (other app, tab or window): blur at once, lock after 1 min (phone/tablet) or 5 min (desktop).
+   Inactivity timer pauses while away. Phones pause timers in the background, so the time away is
+   also checked the moment you come back. */
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const LEAVE_MS = (isMobile ? 1 : 5) * 60000;
+let leaveTimer = null, leftAt = 0;
+function leave(){
+  if (!S || quietN || leftAt) return;
+  leftAt = Date.now(); document.body.classList.add("priv");
+  clearTimeout(idleTimer); clearInterval(tick); $("lockTimer").textContent = "";
+  clearTimeout(leaveTimer); leaveTimer = setTimeout(() => lock("leave"), LEAVE_MS);
+}
+function back(){
+  if (!leftAt || !document.hasFocus() && document.hidden) return;
+  const away = Date.now() - leftAt; leftAt = 0; clearTimeout(leaveTimer);
+  if (!S) return;
+  if (away >= LEAVE_MS) return lock("leave");
+  if (!manualPriv) setPrivacy(false);
+  idleAt = 0; armIdle();
+}
+addEventListener("blur", leave);
+addEventListener("focus", back);
+document.addEventListener("visibilitychange", () => document.hidden ? leave() : back());
+addEventListener("pageshow", back);
+addEventListener("pagehide", () => { if (S) lock("leave"); });
+addEventListener("beforeunload", e => { if (dirty || pending) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ===================== PRIVACY & EDIT MODE ===================== */
 const isRO = () => document.body.classList.contains("ro");
 function setPrivacy(on){ document.body.classList.toggle("priv", on); $("privBtn").classList.toggle("on", on); }
-async function setEdit(on){
-  if (!on && dirty) {
-    if (confirm("Save your changes before leaving Edit mode?")) await saveVault();
-  }
+$("privBtn").onclick = () => { manualPriv = !document.body.classList.contains("priv"); setPrivacy(manualPriv); };
+async function setEditMode(on, silent){
+  if (!on && dirty && !silent && ask("Save your changes before leaving Edit mode?")) await saveVault();
   document.body.classList.toggle("ro", !on);
   $("editBtn").classList.toggle("on", on);
   $("modeTag").textContent = on ? "Editing" : "Read-only";
   if ($("edit").classList.contains("open")) applyFieldMode();
+  if ($("menu").classList.contains("open")) menuInfo();
 }
-$("privBtn").onclick = () => setPrivacy(!document.body.classList.contains("priv"));
-$("editBtn").onclick = () => setEdit(isRO());
+$("editBtn").onclick = () => setEditMode(isRO());
 
 /* ===================== RENDER ===================== */
 function host(u){ try { return new URL(u.includes("://")?u:"https://"+u).hostname; } catch { return ""; } }
+function ageDays(e){ return (Date.now() - (e.pwChanged || e.updated || Date.now())) / DAY; }
+function ageLabel(d){ return d >= 365 ? (Math.floor(d/365*10)/10) + " yr" : Math.floor(d/30) + " mo"; }
+/* Password age limits (years): yellow / red, by category */
+const Y = 365.25;
+function agePolicy(cat){
+  const c = (cat||"").toLowerCase();
+  if (/e-?mail|\bmail|social/.test(c)) return {y:2.5*Y, r:3*Y};
+  if (/bank|financ|credit|invest|brokerage|loan|mortgage|payment|crypto|retire/.test(c)) return {y:2*Y, r:2.5*Y};
+  return {y:4.5*Y, r:5*Y};
+}
+function ageLevel(e){ if (!e.password) return 0; const d = ageDays(e), p = agePolicy(e.category); return d >= p.r ? 2 : d >= p.y ? 1 : 0; }
 function render(){
+  if (!S) return;
   const E = S.data.entries;
-  const cats = ["All", ...[...new Set(E.map(e=>e.category||"Uncategorised"))].sort()];
+  const cats = ["All", "⭐ Favourites", ...[...new Set(E.map(e=>e.category||"Uncategorised"))].sort()];
   if (!cats.includes(cat)) cat = "All";
   $("chips").innerHTML = cats.map(c=>`<button class="chip ${c===cat?"on":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
-  $("catList").innerHTML = cats.slice(1).map(c=>`<option value="${esc(c)}">`).join("");
   const counts = {}; E.forEach(e => { if (e.password) counts[e.password] = (counts[e.password]||0)+1; });
   const weak = E.filter(e => e.password && score(e.password) < 3).length;
   const reused = E.filter(e => e.password && counts[e.password] > 1).length;
+  const old = E.filter(e => ageLevel(e) === 2).length;
   $("stats").innerHTML = `<div class="stat"><b>${E.length}</b><span class="mut">entries</span></div>
     <div class="stat"><b class="${weak?"warn":""}">${weak}</b><span class="mut">weak</span></div>
-    <div class="stat"><b class="${reused?"warn":""}">${reused}</b><span class="mut">reused</span></div>`;
+    <div class="stat"><b class="${reused?"warn":""}">${reused}</b><span class="mut">reused</span></div>
+    <div class="stat"><b class="${old?"badc":""}">${old}</b><span class="mut">change due</span></div>`;
   const q = $("q").value.trim().toLowerCase();
-  const rows = E.filter(e => (cat==="All" || (e.category||"Uncategorised")===cat) &&
+  const rows = E.filter(e => (cat==="All" || (cat==="⭐ Favourites" ? e.fav : (e.category||"Uncategorised")===cat)) &&
       (!q || [e.title,e.username,e.url,e.category,e.notes].some(v => (v||"").toLowerCase().includes(q))))
-    .sort((a,b)=>(a.title||"").localeCompare(b.title||""));
-  $("list").innerHTML = rows.length ? rows.map(e => `
-    <div class="item" data-id="${e.id}">
-      <div class="av">${esc((e.title||"?")[0].toUpperCase())}</div>
-      <div class="meta"><div class="t">${esc(e.title||"(untitled)")}${counts[e.password]>1?' <span class="warn" title="Reused">⚠︎</span>':""}</div>
+    .sort((a,b)=> (b.fav?1:0)-(a.fav?1:0) || (a.title||"").localeCompare(b.title||""));
+  $("list").innerHTML = rows.length ? rows.map(e => {
+    const lv = ageLevel(e), cls = lv===2 ? "age2" : lv===1 ? "age1" : "";
+    const tag = cls ? `<span class="tag ${lv===2?"r":"y"}">${ageLabel(ageDays(e))}</span>` : "";
+    return `<div class="item ${cls}" data-id="${e.id}">
+      <button class="star ${e.fav?"on":""}" data-fav="${e.id}" title="Favourite">${e.fav?"★":"☆"}</button>
+      <div class="meta"><div class="t">${esc(e.title||"(untitled)")}${counts[e.password]>1?' <span class="warn" title="Reused">⚠︎</span>':""}${tag}</div>
         <div class="u">${esc(e.username||host(e.url||"")||"")}</div></div>
       <button data-cu="${e.id}">User</button><button data-cp="${e.id}">Copy pw</button>
-    </div>`).join("") : `<div class="mut" style="padding:20px;text-align:center">${E.length?"No matches.":"Empty vault — add an entry or import your CSV from the ⋯ menu."}</div>`;
+    </div>`; }).join("") : `<div class="mut" style="padding:20px;text-align:center">${E.length?"No matches.":"Empty vault — turn on ✎ Edit, then add an entry or import your CSV from the ⋯ menu."}</div>`;
 }
 $("q").oninput = render;
 $("chips").onclick = e => { const c = e.target.dataset.cat; if (c) { cat = c; render(); } };
 $("list").onclick = e => {
-  const t = e.target, get = id => S.data.entries.find(x=>x.id===id);
+  const t = e.target.closest("button") || e.target, get = id => S.data.entries.find(x=>x.id===id);
   if (t.dataset.cp) return copy(get(t.dataset.cp).password, "Password");
   if (t.dataset.cu) return copy(get(t.dataset.cu).username, "Username");
-  const row = t.closest(".item"); if (row) openEdit(row.dataset.id);
+  if (t.dataset.fav) {
+    if (isRO()) return toast("Turn on ✎ Edit to change favourites");
+    const x = get(t.dataset.fav); x.fav = !x.fav; setDirty(true); return render();
+  }
+  const row = e.target.closest(".item"); if (row) openEdit(row.dataset.id);
 };
 
 /* ===================== CLIPBOARD ===================== */
 async function copy(v, what){
   if (!v) return toast("Nothing to copy");
   try { await navigator.clipboard.writeText(v); } catch { return toast("Copy blocked by browser"); }
-  toast(`${what} copied — clears in 30s`);
+  const sec = settings().clipSec;
+  toast(`${what} copied — clears in ${sec}s`);
   clearTimeout(clipTimer);
-  clipTimer = setTimeout(async () => { try { if ((await navigator.clipboard.readText()) === v) await navigator.clipboard.writeText(""); } catch { try { await navigator.clipboard.writeText(""); } catch{} } }, CLIP_MS);
+  clipTimer = setTimeout(async () => { try { if ((await navigator.clipboard.readText()) === v) await navigator.clipboard.writeText(""); } catch { try { await navigator.clipboard.writeText(""); } catch{} } }, sec*1000);
 }
 
-/* ===================== EDIT ===================== */
-const F = ["Title","Cat","User","Pass","Url","Notes"], K = ["title","category","username","password","url","notes"];
+/* ===================== CATEGORIES ===================== */
+const PRESET_CATS = ["Email","Social Media","Banking","Credit Cards","Investments","Payments (PayPal, Venmo…)","Loans & Mortgage",
+  "Shopping","Work","Utilities","Phone & Internet","Streaming & Entertainment","Travel","Health","Insurance",
+  "Government & Tax","Education","Gaming","Cloud & Storage","Devices & Wi-Fi","Other"];
+const NEW_CAT = "__new__";
+function fillCats(current){
+  const custom = [...new Set(S.data.entries.map(e=>e.category).filter(c => c && !PRESET_CATS.includes(c)))].sort();
+  if (current && !PRESET_CATS.includes(current) && !custom.includes(current)) custom.push(current);
+  $("fCatSel").innerHTML = `<option value="">— No category —</option>` +
+    PRESET_CATS.map(c=>`<option>${esc(c)}</option>`).join("") +
+    (custom.length ? `<optgroup label="Your categories">${custom.map(c=>`<option>${esc(c)}</option>`).join("")}</optgroup>` : "") +
+    `<option value="${NEW_CAT}">➕ Add new category…</option>`;
+  $("fCatSel").value = current || "";
+  $("fCat").value = ""; $("fCat").classList.add("hidden");
+}
+$("fCatSel").onchange = () => {
+  const n = $("fCatSel").value === NEW_CAT;
+  $("fCat").classList.toggle("hidden", !n); if (n) $("fCat").focus();
+};
+const catValue = () => $("fCatSel").value === NEW_CAT ? $("fCat").value.trim() : $("fCatSel").value;
+
+/* ===================== ENTRY DIALOG ===================== */
+const F = ["Title","User","Pass","Url","Notes"], K = ["title","username","password","url","notes"];
 function openModal(id){ $(id).classList.add("open"); }
 function closeModal(id){ $(id).classList.remove("open"); }
 function openEdit(id){
   editingId = id; const e = id ? S.data.entries.find(x=>x.id===id) : {};
   F.forEach((f,i)=> $("f"+f).value = e[K[i]] || "");
+  fillCats(e.category || "");
+  $("fFav").checked = !!e.fav;
   $("fPass").type = "password"; $("togglePw").textContent = "Show";
   $("delBtn").classList.toggle("hidden", !id);
-  applyFieldMode();
-  $("fUpdated").textContent = e.updated ? "Last changed " + new Date(e.updated).toLocaleString() : "";
-  bar($("fBar"), $("fPass").value); openModal("edit");
+  const parts = [];
+  if (e.updated) parts.push("Last edited " + new Date(e.updated).toLocaleDateString());
+  if (e.password) { const p = agePolicy(e.category); parts.push(`password age: ${ageLabel(ageDays(e))} (change by ${Math.round(p.r/Y*10)/10} yr)`); }
+  $("fUpdated").textContent = parts.join(" · ");
+  const h = (e.history||[]).filter(x=>x.password);
+  $("histWrap").classList.toggle("hidden", !h.length);
+  $("histBox").innerHTML = h.map((x,i)=>`<div class="hist"><span>•••••••• <span class="mut">until ${x.changed?new Date(x.changed).toLocaleDateString():"?"}</span></span><button data-h="${i}">Copy</button></div>`).join("");
+  $("histBox").onclick = ev => { const i = ev.target.dataset.h; if (i!==undefined) copy(h[i].password, "Old password"); };
+  bar($("fBar"), $("fPass").value); applyFieldMode(); openModal("edit");
   if (!id) $("fTitle").focus();
 }
 function applyFieldMode(){
   const ro = isRO();
-  F.forEach(f => $("f"+f).readOnly = ro);
+  F.forEach(f => $("f"+f).readOnly = ro); $("fCatSel").disabled = ro; $("fCat").readOnly = ro;
   $("editTitle").textContent = ro ? "Details" : (editingId ? "Edit entry" : "New entry");
   $("saveEntry").textContent = ro ? "Close" : "Done";
 }
 $("addBtn").onclick = () => { if (!isRO()) openEdit(null); };
 $("closeEdit").onclick = () => closeModal("edit");
+$("openUrl").onclick = () => { const u = $("fUrl").value.trim(); if (!u) return toast("No website saved"); window.open(u.includes("://")?u:"https://"+u, "_blank", "noopener,noreferrer"); };
 $("saveEntry").onclick = () => {
   if (isRO()) return closeModal("edit");
-  const v = {}; F.forEach((f,i)=> v[K[i]] = $("f"+f).value.trim()); v.password = $("fPass").value;
+  const v = {}; F.forEach((f,i)=> v[K[i]] = $("f"+f).value.trim()); v.password = $("fPass").value; v.fav = $("fFav").checked;
+  v.category = catValue();
+  if ($("fCatSel").value === NEW_CAT && !v.category) return toast("Type the new category name");
   if (!v.title && !v.username) return toast("Add a title or username");
-  const E = S.data.entries;
-  if (editingId) { const e = E.find(x=>x.id===editingId); if (e.password !== v.password) (e.history ||= []).unshift({password:e.password, changed:e.updated}); Object.assign(e, v, {updated:Date.now()}); if (e.history.length>5) e.history.length=5; }
-  else E.push({id:uid(), ...v, updated:Date.now()});
+  const E = S.data.entries, now = Date.now();
+  if (editingId) {
+    const e = E.find(x=>x.id===editingId);
+    if (e.password !== v.password) {
+      if (e.password) { e.history ||= []; e.history.unshift({password:e.password, changed:now}); e.history.length = Math.min(e.history.length, 5); }
+      e.pwChanged = now;
+    }
+    Object.assign(e, v, {updated:now});
+  } else E.push({id:uid(), ...v, updated:now, pwChanged:now});
   closeModal("edit"); setDirty(true); render();
 };
 $("delBtn").onclick = () => {
-  if (isRO() || !confirm("Delete this entry?")) return;
+  if (isRO() || !ask("Delete this entry?")) return;
   S.data.entries = S.data.entries.filter(x=>x.id!==editingId); closeModal("edit"); setDirty(true); render();
 };
 $("togglePw").onclick = () => { const p=$("fPass"); p.type = p.type==="password"?"text":"password"; $("togglePw").textContent = p.type==="password"?"Show":"Hide"; };
@@ -384,12 +612,33 @@ function gen(len, sym){
 }
 $("genBtn").onclick = () => { $("fPass").value = gen(Math.min(64,Math.max(8,+$("gLen").value||20)), $("gSym").checked); $("fPass").type="text"; $("togglePw").textContent="Hide"; bar($("fBar"), $("fPass").value); };
 function score(p){ let s=0; if (p.length>=12) s++; if (p.length>=16) s++; if (/[a-z]/.test(p)&&/[A-Z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++; if (p.length<8) s=0; return s; }
-function bar(el, p){ const s=score(p); el.style.width = (s/5*100)+"%"; el.style.background = s<3?"var(--bad)":s<4?"#ffb547":"var(--ok)"; }
+function bar(el, p){ const s=score(p); el.style.width = (s/5*100)+"%"; el.style.background = s<3?"var(--bad)":s<4?"var(--warn)":"var(--ok)"; }
 
-/* ===================== MENU: IMPORT / CHANGE PW ===================== */
-$("menuBtn").onclick = () => { $("vaultInfo").textContent = `File: ${fileLabel} · ${S.data.entries.length} entries · PBKDF2 ${S.iter.toLocaleString()} iterations · AES-256-GCM`; openModal("menu"); };
+/* ===================== MENU ===================== */
+function menuInfo(){
+  const st = settings();
+  $("setLock").value = st.lockMin; $("setClip").value = st.clipSec;
+  $("setLock").disabled = $("setClip").disabled = isRO();
+  const n = S.wk.length;
+  $("faceAdd").textContent = n ? "Add Face ID / Touch ID on another device" : "Turn on Face ID / Touch ID";
+  $("faceDel").classList.toggle("hidden", !n);
+  $("leaveInfo").textContent = (isMobile ? "1 minute" : "5 minutes");
+  $("faceNote").textContent = !faceSupported() ? "Face ID / Touch ID works only on the https:// page, not the local file."
+    : n ? `Face ID / Touch ID is on (${n} passkey${n>1?"s":""}). Your master password always works too.` : "";
+  $("restoreBtn").classList.toggle("hidden", !S.prev);
+  $("vaultInfo").textContent = `File: ${fileLabel} · ${S.data.entries.length} entries · AES-256-GCM · PBKDF2 ${S.iter.toLocaleString()}`;
+}
+$("menuBtn").onclick = () => { menuInfo(); openModal("menu"); };
 $("closeMenu").onclick = () => closeModal("menu");
-$("importBtn").onclick = () => $("csvIn").click();
+$("setLock").onchange = () => { S.data.settings.lockMin = +$("setLock").value; setDirty(true); armIdle(); toast("Saved with the vault — tap Save"); };
+$("setClip").onchange = () => { S.data.settings.clipSec = +$("setClip").value; setDirty(true); toast("Saved with the vault — tap Save"); };
+$("restoreBtn").onclick = async () => {
+  if (!S.prev || !ask("Replace what you see now with the version from the save before the last one?")) return;
+  try { S.data = JSON.parse(dec.decode(await aesDec(S.dataKey, S.prev))); S.data.entries ||= []; S.data.settings ||= {}; }
+  catch { return toast("Couldn't read the previous save"); }
+  closeModal("menu"); setDirty(true); render(); toast("Previous save restored — tap Save to keep it");
+};
+$("importBtn").onclick = () => quiet(async () => $("csvIn").click());
 function parseCSV(t){
   const rows=[]; let row=[], f="", q=false;
   for (let i=0;i<t.length;i++){ const c=t[i];
@@ -406,25 +655,31 @@ $("csvIn").onchange = async e => {
   if (rows.length < 2) return toast("No rows found");
   const H = rows[0].map(h=>h.trim().toLowerCase());
   const col = names => H.findIndex(h => names.some(n => h===n || h.includes(n)));
-  const m = { title:col(["title","name","site","account","service","application","app"]), username:col(["username","user","login","email","id"]),
+  const m = { title:col(["title","name","site","account","service","application","app"]), username:col(["username","user","login","email"]),
               password:col(["password","pass","pwd"]), url:col(["url","website","link","web"]), category:col(["category","group","folder","type"]), notes:col(["notes","note","comment","remarks"]) };
   if (m.password < 0) return toast("Couldn't find a Password column");
-  let n = 0;
+  let n = 0; const now = Date.now();
   rows.slice(1).forEach(r => { const g = k => m[k]>=0 ? (r[m[k]]||"").trim() : "";
-    const e = {id:uid(), title:g("title")||host(g("url"))||g("username"), username:g("username"), password:m.password>=0?(r[m.password]||""):"", url:g("url"), category:g("category"), notes:g("notes"), updated:Date.now()};
-    if (e.title||e.username||e.password){ S.data.entries.push(e); n++; } });
+    const x = {id:uid(), title:g("title")||host(g("url"))||g("username"), username:g("username"), password:r[m.password]||"", url:g("url"), category:g("category"), notes:g("notes"), updated:now, pwChanged:now};
+    if (x.title||x.username||x.password){ S.data.entries.push(x); n++; } });
   closeModal("menu"); setDirty(true); render();
   toast(`Imported ${n} entries — now Save, then delete the CSV`);
 };
 $("chgPwBtn").onclick = async () => {
-  const a = prompt("New master password (12+ characters):"); if (!a) return;
+  const a = askText("New master password (12+ characters):"); if (!a) return;
   if (a.length < 12) return toast("Too short");
-  if (prompt("Confirm new master password:") !== a) return toast("Didn't match");
-  S.salt = rand(16); S.iter = ITER; S.key = await deriveKey(a, S.salt, ITER);
-  setDirty(true); closeModal("menu"); toast("Master password changed — Save now");
+  if (askText("Confirm new master password:") !== a) return toast("Didn't match");
+  S.salt = rand(16); S.iter = ITER; S.wp = await aesEnc(await pwKey(a, S.salt, ITER), S.vk);
+  setDirty(true); closeModal("menu"); toast("Master password changed — tap Save");
 };
 
-document.addEventListener("keydown", e => { if (e.key==="Escape"){ closeModal("edit"); closeModal("menu"); } if ((e.metaKey||e.ctrlKey) && e.key==="s" && S){ e.preventDefault(); saveVault(); } });
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape"){ closeModal("edit"); closeModal("menu"); }
+  if (!S) return;
+  if ((e.metaKey||e.ctrlKey) && e.key==="s"){ e.preventDefault(); if (!isRO()) saveVault(); }
+  if ((e.metaKey||e.ctrlKey) && e.key==="l"){ e.preventDefault(); lock("manual"); }
+  if (e.key==="/" && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA"){ e.preventDefault(); $("q").focus(); }
+});
 </script>
 </body>
 </html>
